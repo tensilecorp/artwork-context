@@ -6,6 +6,7 @@ import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
 import { processImageFile } from '../../utils/imageOrientation'
 import { saveUserSession, getUserSession, clearUserSession, fileToStorageData, storageDataToFile } from '../../utils/sessionStorage'
+import { compressImage, validateImageFile, formatFileSize, needsCompression } from '../../utils/imageCompression'
 
 interface PlacementResult {
   success: boolean
@@ -166,9 +167,18 @@ export default function UploadPage() {
     }
   }, [uploadedFile, email, previewUrl, selectedEnvironment, customPrompt, artworkDimensions, includePedestal, viewingAngle, selectedLighting, artworkType, aspectRatio])
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
     if (file) {
+      // Validate file first
+      const validation = validateImageFile(file)
+      if (!validation.valid) {
+        alert(validation.error)
+        return
+      }
+
+      console.log(`File uploaded: ${file.name} (${formatFileSize(file.size)})`)
+      
       setUploadedFile(file)
       const url = URL.createObjectURL(file)
       setPreviewUrl(url)
@@ -232,8 +242,24 @@ export default function UploadPage() {
     setIsProcessing(true)
     
     try {
-      // Convert file to base64 with EXIF orientation correction
-      const base64 = await processImageFile(uploadedFile)
+      let base64: string
+
+      // Check if file needs compression
+      if (needsCompression(uploadedFile, 3)) { // 3MB threshold
+        console.log('File is large, compressing before processing...')
+        // Use compression for large files
+        base64 = await compressImage(uploadedFile, {
+          maxWidth: 1024,
+          maxHeight: 1024,
+          quality: 0.8,
+          maxSizeKB: 400 // Target 400KB for API
+        })
+      } else {
+        // Use normal EXIF processing for smaller files
+        base64 = await processImageFile(uploadedFile)
+      }
+
+      console.log('Sending image to API...')
       
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -254,7 +280,10 @@ export default function UploadPage() {
       })
 
       if (!response.ok) {
-        throw new Error('Placement failed')
+        if (response.status === 413) {
+          throw new Error('Image file is too large. Please try a smaller image or contact support.')
+        }
+        throw new Error(`Placement failed (${response.status})`)
       }
 
       const result = await response.json()
@@ -270,7 +299,13 @@ export default function UploadPage() {
 
     } catch (error) {
       console.error('Placement error:', error)
-      alert('Generation failed. Please try again.')
+      
+      let errorMessage = 'Generation failed. Please try again.'
+      if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      
+      alert(errorMessage)
     } finally {
       setIsProcessing(false)
     }
