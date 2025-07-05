@@ -39,45 +39,56 @@ export function correctImageOrientation(file: File): Promise<string> {
           }
           
           // Apply transformation based on EXIF orientation
+          // Reset any previous transformations
+          ctx.setTransform(1, 0, 0, 1, 0, 0)
+          
           switch (orientation) {
             case 1:
               // Normal - no transformation needed
+              ctx.drawImage(img, 0, 0)
               break
             case 2:
               // Horizontal flip
-              ctx.transform(-1, 0, 0, 1, width, 0)
+              ctx.scale(-1, 1)
+              ctx.drawImage(img, -width, 0)
               break
             case 3:
               // 180° rotation
-              ctx.transform(-1, 0, 0, -1, width, height)
+              ctx.rotate(Math.PI)
+              ctx.drawImage(img, -width, -height)
               break
             case 4:
               // Vertical flip
-              ctx.transform(1, 0, 0, -1, 0, height)
+              ctx.scale(1, -1)
+              ctx.drawImage(img, 0, -height)
               break
             case 5:
               // 90° CW + horizontal flip
-              ctx.transform(0, 1, 1, 0, 0, 0)
+              ctx.rotate(Math.PI / 2)
+              ctx.scale(-1, 1)
+              ctx.drawImage(img, -height, 0)
               break
             case 6:
-              // 90° CW rotation
-              ctx.transform(0, 1, -1, 0, height, 0)
+              // 90° CW rotation (most common mobile issue)
+              ctx.rotate(Math.PI / 2)
+              ctx.drawImage(img, 0, -height)
               break
             case 7:
               // 90° CCW + horizontal flip
-              ctx.transform(0, -1, -1, 0, height, width)
+              ctx.rotate(-Math.PI / 2)
+              ctx.scale(-1, 1)
+              ctx.drawImage(img, -width, 0)
               break
             case 8:
               // 90° CCW rotation
-              ctx.transform(0, -1, 1, 0, 0, width)
+              ctx.rotate(-Math.PI / 2)
+              ctx.drawImage(img, -width, 0)
               break
             default:
               // Unknown orientation, treat as normal
+              ctx.drawImage(img, 0, 0)
               break
           }
-          
-          // Draw the image with the applied transformation
-          ctx.drawImage(img, 0, 0)
           
           // Convert canvas to base64
           const correctedBase64 = canvas.toDataURL('image/jpeg', 0.9)

@@ -5,6 +5,7 @@ import { Upload, Sparkles, Download, ArrowLeft, CheckCircle, Home, Building, Pal
 import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
 import { processImageFile } from '../../utils/imageOrientation'
+import { saveUserSession, getUserSession, clearUserSession, fileToStorageData, storageDataToFile } from '../../utils/sessionStorage'
 
 interface PlacementResult {
   success: boolean
@@ -53,7 +54,7 @@ export default function UploadPage() {
   const [isCheckingOut, setIsCheckingOut] = useState(false)
   const [showPaymentPrompt, setShowPaymentPrompt] = useState(false)
 
-  // Check for existing credits on component mount
+  // Check for existing credits and restore session on component mount
   useEffect(() => {
     const storedCredits = localStorage.getItem('artworkCredits')
     
@@ -72,7 +73,71 @@ export default function UploadPage() {
         localStorage.removeItem('isPaidUser')
       }
     }
+
+    // Restore user session if available
+    restoreUserSession()
   }, [])
+
+  // Restore user session from localStorage
+  const restoreUserSession = async () => {
+    try {
+      const session = getUserSession()
+      
+      if (session.uploadedFile && session.email) {
+        console.log('Restoring user session...')
+        
+        // Restore file
+        const restoredFile = storageDataToFile(session.uploadedFile)
+        if (restoredFile) {
+          setUploadedFile(restoredFile)
+          setPreviewUrl(session.previewUrl || URL.createObjectURL(restoredFile))
+        }
+        
+        // Restore preferences
+        if (session.selectedEnvironment) setSelectedEnvironment(session.selectedEnvironment)
+        if (session.customPrompt) setCustomPrompt(session.customPrompt)
+        if (session.artworkDimensions) setArtworkDimensions(session.artworkDimensions)
+        if (session.includePedestal !== undefined) setIncludePedestal(session.includePedestal)
+        if (session.viewingAngle) setViewingAngle(session.viewingAngle)
+        if (session.selectedLighting) setSelectedLighting(session.selectedLighting)
+        if (session.artworkType) setArtworkType(session.artworkType)
+        if (session.aspectRatio) setAspectRatio(session.aspectRatio)
+        if (session.email) setEmail(session.email)
+        
+        console.log('Session restored successfully!')
+      }
+    } catch (error) {
+      console.error('Failed to restore session:', error)
+    }
+  }
+
+  // Save session data whenever key values change
+  useEffect(() => {
+    if (uploadedFile && email && previewUrl) {
+      const saveSession = async () => {
+        try {
+          const base64 = await processImageFile(uploadedFile)
+          saveUserSession({
+            uploadedFile: fileToStorageData(uploadedFile, base64),
+            previewUrl,
+            selectedEnvironment,
+            customPrompt,
+            artworkDimensions,
+            includePedestal,
+            viewingAngle,
+            selectedLighting,
+            artworkType,
+            aspectRatio,
+            email
+          })
+        } catch (error) {
+          console.error('Failed to save session:', error)
+        }
+      }
+      
+      saveSession()
+    }
+  }, [uploadedFile, email, previewUrl, selectedEnvironment, customPrompt, artworkDimensions, includePedestal, viewingAngle, selectedLighting, artworkType, aspectRatio])
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
