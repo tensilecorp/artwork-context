@@ -83,14 +83,25 @@ export default function UploadPage() {
     try {
       const session = getUserSession()
       
-      if (session.uploadedFile && session.email) {
-        console.log('Restoring user session...')
+      // Check if we have any session data to restore
+      if (session.uploadedFile || session.email) {
+        console.log('Restoring user session...', session)
         
-        // Restore file
-        const restoredFile = storageDataToFile(session.uploadedFile)
-        if (restoredFile) {
-          setUploadedFile(restoredFile)
-          setPreviewUrl(session.previewUrl || URL.createObjectURL(restoredFile))
+        // Restore file if available
+        if (session.uploadedFile) {
+          const restoredFile = storageDataToFile(session.uploadedFile)
+          if (restoredFile) {
+            setUploadedFile(restoredFile)
+            setPreviewUrl(session.previewUrl || URL.createObjectURL(restoredFile))
+            console.log('File restored successfully')
+          }
+        }
+        
+        // Restore email and mark as submitted if available
+        if (session.email) {
+          setEmail(session.email)
+          setEmailSubmitted(true)
+          console.log('Email restored:', session.email)
         }
         
         // Restore preferences
@@ -102,7 +113,6 @@ export default function UploadPage() {
         if (session.selectedLighting) setSelectedLighting(session.selectedLighting)
         if (session.artworkType) setArtworkType(session.artworkType)
         if (session.aspectRatio) setAspectRatio(session.aspectRatio)
-        if (session.email) setEmail(session.email)
         
         console.log('Session restored successfully!')
       }
@@ -113,6 +123,22 @@ export default function UploadPage() {
 
   // Save session data whenever key values change
   useEffect(() => {
+    // Save email and preferences even without file
+    if (email) {
+      saveUserSession({
+        email,
+        selectedEnvironment,
+        customPrompt,
+        artworkDimensions,
+        includePedestal,
+        viewingAngle,
+        selectedLighting,
+        artworkType,
+        aspectRatio
+      })
+    }
+    
+    // Save complete session with file if available
     if (uploadedFile && email && previewUrl) {
       const saveSession = async () => {
         try {
@@ -130,6 +156,7 @@ export default function UploadPage() {
             aspectRatio,
             email
           })
+          console.log('Complete session saved with file')
         } catch (error) {
           console.error('Failed to save session:', error)
         }
