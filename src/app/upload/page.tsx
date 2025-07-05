@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Upload, Sparkles, Download, ArrowLeft, CheckCircle, Home, Building, Palette, RefreshCw, RotateCcw, Sun, Lightbulb, Zap, Image, Box, RectangleHorizontal, RectangleVertical, CreditCard, Mail } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
-import { processImageFile, isHEICFile, formatFileSize } from '../../utils/heicConverter'
+import { processImageFile, isHEICFile, formatFileSize, validateImageFile } from '../../utils/imageProcessor'
 
 interface PlacementResult {
   success: boolean
@@ -75,9 +75,18 @@ export default function UploadPage() {
     }
   }, [])
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
     if (file) {
+      // Validate file first
+      const validation = validateImageFile(file)
+      if (!validation.valid) {
+        alert(validation.error)
+        return
+      }
+
+      console.log(`File uploaded: ${file.name} (${formatFileSize(file.size)})`)
+      
       setUploadedFile(file)
       const url = URL.createObjectURL(file)
       setPreviewUrl(url)
