@@ -238,6 +238,15 @@ export default function UploadPage() {
       const url = URL.createObjectURL(file)
       setPreviewUrl(url)
       
+      // Track file upload
+      if (typeof window !== 'undefined' && window.posthog) {
+        window.posthog.capture('file_uploaded', {
+          file_size: file.size,
+          file_type: file.type,
+          file_name: file.name
+        })
+      }
+      
       try {
         await saveUploadedFile(file)
         console.log('File saved to session storage')
@@ -259,6 +268,13 @@ export default function UploadPage() {
     e.preventDefault()
     if (email.trim()) {
       setEmailSubmitted(true)
+      // Track email submission
+      if (typeof window !== 'undefined' && window.posthog) {
+        window.posthog.capture('email_submitted', {
+          email: email,
+          step: 'onboarding'
+        })
+      }
     }
   }
 
