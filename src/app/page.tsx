@@ -1,4 +1,4 @@
-import { Upload, Sparkles, Download, Star, Users, Clock, CheckCircle, ArrowRight } from 'lucide-react'
+import { Upload, Sparkles, Download, Star, Users, Clock, CheckCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -481,7 +481,7 @@ export default function Home() {
               </span>
             </div>
             <p className="text-gray-600">
-              If you don't love your visualizations, we'll refund your entire purchase
+              If you don&apos;t love your visualizations, we&apos;ll refund your entire purchase
             </p>
           </div>
         </div>

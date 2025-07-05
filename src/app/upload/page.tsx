@@ -56,7 +56,6 @@ export default function UploadPage() {
   // Check for existing credits on component mount
   useEffect(() => {
     const storedCredits = localStorage.getItem('artworkCredits')
-    const storedPaidStatus = localStorage.getItem('isPaidUser')
     
     if (storedCredits) {
       const parsedCredits = JSON.parse(storedCredits)
@@ -307,7 +306,7 @@ export default function UploadPage() {
         // You can implement Trustpilot redirect here later
         alert('Thank you for your feedback! Your review helps us improve ArtContext.')
       } else {
-        alert('Thank you for your feedback! We\'ll use this to improve our service.')
+        alert('Thank you for your feedback! We&apos;ll use this to improve our service.')
       }
 
       // Reset review state
