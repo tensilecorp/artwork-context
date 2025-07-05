@@ -3,9 +3,8 @@
  * - HEIC files: Converts to JPG using heic2any library
  * - All images: Applies EXIF orientation correction
  * - Large images: Compresses to reasonable size
+ * - Client-side only: Uses dynamic imports to avoid SSR issues
  */
-
-import heic2any from 'heic2any'
 
 /**
  * Check if a file is HEIC format
@@ -18,11 +17,19 @@ export function isHEICFile(file: File): boolean {
 }
 
 /**
- * Convert HEIC file to JPG using proper HEIC library
+ * Convert HEIC file to JPG using proper HEIC library (client-side only)
  */
 export async function convertHEICToJPG(file: File): Promise<File> {
+  // Ensure we're in a browser environment
+  if (typeof window === 'undefined') {
+    throw new Error('HEIC conversion only available in browser environment')
+  }
+
   try {
     console.log('Converting HEIC to JPG using heic2any...')
+    
+    // Dynamic import to avoid SSR issues
+    const heic2any = (await import('heic2any')).default
     
     const convertedBlob = await heic2any({
       blob: file,
@@ -47,10 +54,16 @@ export async function convertHEICToJPG(file: File): Promise<File> {
 }
 
 /**
- * Get EXIF orientation from image file
+ * Get EXIF orientation from image file (client-side only)
  */
 function getImageOrientation(file: File): Promise<number> {
   return new Promise((resolve) => {
+    // Ensure we're in a browser environment
+    if (typeof window === 'undefined' || typeof FileReader === 'undefined') {
+      resolve(1) // Default orientation for SSR
+      return
+    }
+
     const reader = new FileReader()
     
     reader.onload = function(e) {
@@ -103,10 +116,16 @@ function getImageOrientation(file: File): Promise<number> {
 }
 
 /**
- * Apply EXIF orientation correction to image
+ * Apply EXIF orientation correction to image (client-side only)
  */
 export function correctImageOrientation(file: File, orientation: number): Promise<string> {
   return new Promise((resolve, reject) => {
+    // Ensure we're in a browser environment
+    if (typeof window === 'undefined' || typeof document === 'undefined' || typeof FileReader === 'undefined') {
+      reject(new Error('Image processing only available in browser environment'))
+      return
+    }
+
     const reader = new FileReader()
     
     reader.onload = function(e) {
@@ -219,8 +238,14 @@ export async function processImageFile(file: File): Promise<string> {
   } catch (error) {
     console.error('Image processing failed:', error)
     
-    // Fallback: simple base64 conversion
+    // Fallback: simple base64 conversion (client-side only)
     console.log('Falling back to simple base64 conversion...')
+    
+    // Ensure we're in a browser environment for fallback
+    if (typeof window === 'undefined' || typeof FileReader === 'undefined') {
+      throw new Error('Image processing requires browser environment')
+    }
+    
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
       reader.readAsDataURL(file)
