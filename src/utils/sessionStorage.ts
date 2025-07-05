@@ -50,7 +50,12 @@ export function saveUserSession(data: Partial<UserSessionData>): void {
     }
     
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionData))
-    console.log('User session saved successfully')
+    console.log('User session saved successfully:', {
+      email: sessionData.email,
+      hasFile: !!sessionData.uploadedFile,
+      environment: sessionData.selectedEnvironment,
+      timestamp: sessionData.savedAt
+    })
   } catch (error) {
     console.error('Failed to save user session:', error)
   }
