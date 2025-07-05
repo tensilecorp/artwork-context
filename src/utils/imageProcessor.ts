@@ -67,47 +67,85 @@ function getImageOrientation(file: File): Promise<number> {
     const reader = new FileReader()
     
     reader.onload = function(e) {
-      const arrayBuffer = e.target?.result as ArrayBuffer
-      const dataView = new DataView(arrayBuffer)
-      
-      // Check for JPEG signature
-      if (dataView.getUint16(0) !== 0xFFD8) {
-        resolve(1) // Default orientation
-        return
-      }
-      
-      let offset = 2
-      let marker = dataView.getUint16(offset)
-      
-      while (offset < dataView.byteLength) {
-        if (marker === 0xFFE1) { // EXIF marker
-          const exifOffset = offset + 4
-          const tiffOffset = exifOffset + 6
+      try {
+        const arrayBuffer = e.target?.result as ArrayBuffer
+        const dataView = new DataView(arrayBuffer)
+        
+        // Check minimum file size and JPEG signature
+        if (arrayBuffer.byteLength < 4 || dataView.getUint16(0) !== 0xFFD8) {
+          resolve(1) // Default orientation
+          return
+        }
+        
+        let offset = 2
+        
+        while (offset < dataView.byteLength - 1) {
+          // Ensure we can read the marker
+          if (offset + 1 >= dataView.byteLength) break
           
-          // Check for TIFF header
-          if (dataView.getUint32(tiffOffset) === 0x4D4D002A || dataView.getUint32(tiffOffset) === 0x49492A00) {
-            const littleEndian = dataView.getUint32(tiffOffset) === 0x49492A00
-            const ifdOffset = dataView.getUint32(tiffOffset + 4, littleEndian) + tiffOffset
-            const tagCount = dataView.getUint16(ifdOffset, littleEndian)
+          const marker = dataView.getUint16(offset)
+          
+          if (marker === 0xFFE1) { // EXIF marker
+            // Ensure we can read the segment length
+            if (offset + 3 >= dataView.byteLength) break
             
-            for (let i = 0; i < tagCount; i++) {
-              const tagOffset = ifdOffset + 2 + (i * 12)
-              const tag = dataView.getUint16(tagOffset, littleEndian)
+            const segmentLength = dataView.getUint16(offset + 2)
+            const exifOffset = offset + 4
+            const tiffOffset = exifOffset + 6
+            
+            // Check bounds for TIFF header
+            if (tiffOffset + 7 >= dataView.byteLength) break
+            
+            // Check for TIFF header
+            const tiffHeader = dataView.getUint32(tiffOffset)
+            if (tiffHeader === 0x4D4D002A || tiffHeader === 0x49492A00) {
+              const littleEndian = tiffHeader === 0x49492A00
               
-              if (tag === 0x0112) { // Orientation tag
-                const orientation = dataView.getUint16(tagOffset + 8, littleEndian)
-                resolve(orientation)
-                return
+              // Check bounds for IFD offset
+              if (tiffOffset + 7 >= dataView.byteLength) break
+              
+              const ifdOffset = dataView.getUint32(tiffOffset + 4, littleEndian) + tiffOffset
+              
+              // Check bounds for tag count
+              if (ifdOffset + 1 >= dataView.byteLength) break
+              
+              const tagCount = dataView.getUint16(ifdOffset, littleEndian)
+              
+              // Reasonable limit on tag count to prevent infinite loops
+              const maxTags = Math.min(tagCount, 100)
+              
+              for (let i = 0; i < maxTags; i++) {
+                const tagOffset = ifdOffset + 2 + (i * 12)
+                
+                // Check bounds for tag data
+                if (tagOffset + 11 >= dataView.byteLength) break
+                
+                const tag = dataView.getUint16(tagOffset, littleEndian)
+                
+                if (tag === 0x0112) { // Orientation tag
+                  const orientation = dataView.getUint16(tagOffset + 8, littleEndian)
+                  // Validate orientation value (should be 1-8)
+                  if (orientation >= 1 && orientation <= 8) {
+                    resolve(orientation)
+                    return
+                  }
+                }
               }
             }
           }
+          
+          // Move to next segment
+          if (offset + 3 >= dataView.byteLength) break
+          
+          const segmentLength = dataView.getUint16(offset + 2)
+          offset += 2 + segmentLength
         }
         
-        offset += 2 + dataView.getUint16(offset + 2)
-        marker = dataView.getUint16(offset)
+        resolve(1) // Default orientation if not found
+      } catch (error) {
+        console.warn('EXIF reading failed:', error)
+        resolve(1) // Default orientation on error
       }
-      
-      resolve(1) // Default orientation if not found
     }
     
     reader.onerror = () => resolve(1)
