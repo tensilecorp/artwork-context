@@ -347,40 +347,40 @@ export default function Home() {
             </div>
 
             <div className="mt-4 w-full rounded-lg border border-gray-200 bg-white p-8 shadow-[0px_0px_75px_0px_rgba(0,0,0,0.07)] md:mt-0 lg:max-w-lg">
-              <p className="mt-5 text-xl font-bold text-gray-900">Traditional photography</p>
+              <p className="mt-5 text-xl font-bold text-gray-900">Traditional methods</p>
               
               <ul className="mt-4 space-y-1 md:space-y-3 text-base font-normal text-gray-600">
                 <li className="flex items-center gap-2.5">
                   <span className="text-red-500">✗</span>
-                  Find a photographer you like
+                  Find and hire a photographer
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="text-red-500">✗</span>
-                  Contact them and wait for a reply
+                  Schedule shoots and coordinate logistics
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="text-red-500">✗</span>
-                  Schedule a time that works for both
+                  Transport artwork to multiple locations
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="text-red-500">✗</span>
-                  Transport artwork to location
+                  Hours of Photoshop editing and retouching
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="text-red-500">✗</span>
-                  Set up lighting and staging
+                  Overused, outdated static mockup templates
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="text-red-500">✗</span>
-                  Take photos and hope they turn out well
+                  Limited environment and styling options
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="text-red-500">✗</span>
-                  Wait for photographer to edit photos
+                  Wait days or weeks for final results
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="text-red-500">✗</span>
-                  Pay hundreds of dollars for the service
+                  Pay $250+ for professional photography
                 </li>
               </ul>
             </div>
