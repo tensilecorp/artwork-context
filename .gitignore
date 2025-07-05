@@ -32,10 +32,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Temporarily exclude large images
-images/scenes/*.jpeg
-images/front*.jpeg
-images/front*.png
-public/front*.jpeg
-public/front*.png
-public/scenes/*.jpeg
+# Temporarily exclude large images and files
+images/scenes/
+images/front*
+public/front*
+public/scenes/
+node_modules/
