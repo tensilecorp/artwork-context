@@ -509,7 +509,7 @@ export default function Home() {
                 Visualizations You Can Actually Use
               </h3>
               <p className="mt-2 text-base font-normal text-gray-600">
-                If you don't get a single professional-quality visualization that you're happy with, we'll refund your entire purchase, no questions asked.
+                      If you don&apos;t get a single professional-quality visualization that you&apos;re happy with, we&apos;ll refund your entire purchase, no questions asked.
               </p>
             </div>
 

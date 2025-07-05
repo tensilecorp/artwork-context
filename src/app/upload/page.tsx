@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Upload, Sparkles, Download, ArrowLeft, Clock, CheckCircle, Home, Building, Palette, RefreshCw, Edit3, RotateCcw, Sun, Lightbulb, Zap, Image, Box, RectangleHorizontal, RectangleVertical, Square, CreditCard, Mail, AlertCircle } from 'lucide-react'
+import { Upload, Sparkles, Download, ArrowLeft, CheckCircle, Home, Building, Palette, RefreshCw, RotateCcw, Sun, Lightbulb, Zap, Image, Box, RectangleHorizontal, RectangleVertical, CreditCard, Mail } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
 import { processImageFile } from '../../utils/imageOrientation'
@@ -38,8 +38,6 @@ export default function UploadPage() {
   const [selectedLighting, setSelectedLighting] = useState('well-lit')
   const [artworkType, setArtworkType] = useState('painting')
   const [aspectRatio, setAspectRatio] = useState('4:3')
-  const [isFineTuning, setIsFineTuning] = useState(false)
-  const [editablePrompt, setEditablePrompt] = useState('')
   const [isUpscaling, setIsUpscaling] = useState(false)
   const [upscaledImageUrl, setUpscaledImageUrl] = useState<string | null>(null)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
@@ -187,14 +185,6 @@ export default function UploadPage() {
     }
   }
 
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = () => resolve(reader.result as string)
-      reader.onerror = error => reject(error)
-    })
-  }
 
   const generateHighResPreview = async () => {
     if (!placementResult?.image_url) return
@@ -329,16 +319,6 @@ export default function UploadPage() {
     }
   }
 
-  const downloadOriginal = () => {
-    if (!placementResult?.image_url) return
-    
-    const link = document.createElement('a')
-    link.href = placementResult.image_url
-    link.download = `artwork-in-${placementResult.environment}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
 
   const environments = [
     { id: 'living-room', name: 'Living Room', icon: Home, description: 'Modern, elegant living space' },

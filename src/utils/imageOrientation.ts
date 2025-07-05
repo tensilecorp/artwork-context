@@ -27,7 +27,7 @@ export function correctImageOrientation(file: File): Promise<string> {
           }
           
           // Calculate canvas dimensions based on orientation
-          let { width, height } = img
+          const { width, height } = img
           
           // For orientations 5, 6, 7, 8 we need to swap width/height
           if (orientation >= 5 && orientation <= 8) {
