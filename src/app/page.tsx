@@ -33,9 +33,10 @@ export default function Home() {
       <header className="sticky inset-x-0 top-0 z-50 py-3 border-b border-gray-100 backdrop-blur-lg bg-white/80">
         <div className="max-w-screen-xl px-4 mx-auto 2xl:px-0 sm:px-6 md:px-8">
           <div className="flex items-center justify-between gap-6 md:gap-8">
-            <div className="flex items-center gap-1">
-              <Link href="/" className="flex relative">
-                <h1 className="text-2xl font-bold text-gray-900">Art Placer Pro</h1>
+            <div className="flex items-center gap-3">
+              <Link href="/" className="flex items-center gap-2">
+                <Image src="/logo.png" alt="ArtView Pro" width={32} height={32} className="w-8 h-8" />
+                <h1 className="text-2xl font-bold text-gray-900">ArtView Pro</h1>
               </Link>
             </div>
             
