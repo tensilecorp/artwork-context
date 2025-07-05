@@ -154,6 +154,65 @@ function getImageOrientation(file: File): Promise<number> {
 }
 
 /**
+ * Convert file to base64 with compression (no orientation correction)
+ */
+function convertToBase64WithCompression(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // Ensure we're in a browser environment
+    if (typeof window === 'undefined' || typeof document === 'undefined' || typeof FileReader === 'undefined') {
+      reject(new Error('Image processing only available in browser environment'))
+      return
+    }
+
+    const reader = new FileReader()
+    
+    reader.onload = function(e) {
+      const img = new Image()
+      
+      img.onload = function() {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'))
+          return
+        }
+        
+        const { width, height } = img
+        
+        // Set canvas dimensions (no orientation changes)
+        canvas.width = width
+        canvas.height = height
+        
+        // Draw the image without any transformations
+        ctx.drawImage(img, 0, 0)
+        
+        // Check if we need to compress for size
+        let quality = 0.9
+        let result = canvas.toDataURL('image/jpeg', quality)
+        
+        // If result is too large (>2MB base64), reduce quality
+        const maxSizeBytes = 2 * 1024 * 1024 // 2MB
+        while (result.length > maxSizeBytes && quality > 0.3) {
+          quality -= 0.1
+          result = canvas.toDataURL('image/jpeg', quality)
+        }
+        
+        console.log(`Image processed: ${width}x${height}, quality: ${quality.toFixed(1)}, size: ~${formatFileSize(result.length * 0.75)}`)
+        
+        resolve(result)
+      }
+      
+      img.onerror = () => reject(new Error('Failed to load image'))
+      img.src = e.target?.result as string
+    }
+    
+    reader.onerror = () => reject(new Error('Failed to read file'))
+    reader.readAsDataURL(file)
+  })
+}
+
+/**
  * Apply EXIF orientation correction to image (client-side only)
  */
 export function correctImageOrientation(file: File, orientation: number): Promise<string> {
@@ -254,6 +313,8 @@ export function correctImageOrientation(file: File, orientation: number): Promis
 
 /**
  * Main image processing function - handles all image types
+ * Note: Removed EXIF orientation correction to prevent double-correction issues
+ * Modern browsers handle EXIF display automatically, so we send images as-is
  */
 export async function processImageFile(file: File): Promise<string> {
   try {
@@ -265,11 +326,8 @@ export async function processImageFile(file: File): Promise<string> {
       processFile = await convertHEICToJPG(file)
     }
     
-    // Step 2: Get EXIF orientation
-    const orientation = await getImageOrientation(processFile)
-    
-    // Step 3: Apply orientation correction and compression
-    const result = await correctImageOrientation(processFile, orientation)
+    // Step 2: Convert to base64 with compression (no orientation correction)
+    const result = await convertToBase64WithCompression(processFile)
     
     return result
     
