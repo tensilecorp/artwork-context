@@ -50,8 +50,8 @@ export default function Home() {
 
             <div className="items-center justify-end flex gap-3">
               <Link href="/upload" className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg border border-blue-600 bg-blue-500 px-6 pb-3.5 pt-2.5 text-lg font-bold leading-6 text-white shadow-[0_0px_24px_0px_rgba(0,0,0,0.25)] transition-all duration-150 hover:bg-opacity-90">
-                <span className="hidden md:inline-flex">Place Your Art</span>
-                <span className="md:hidden">Place Your Art</span>
+                <span className="hidden md:inline-flex">Start Creating Now</span>
+                <span className="md:hidden">Start Creating Now</span>
               </Link>
             </div>
           </div>
@@ -94,8 +94,8 @@ export default function Home() {
 
             <div className="mt-6 flex flex-col md:flex-row gap-3 items-center justify-center">
               <Link href="/upload" className="inline-flex h-12 w-full md:w-auto items-center justify-center gap-1.5 rounded-lg border border-blue-600 bg-blue-500 px-6 pb-3.5 pt-2.5 text-lg font-bold leading-6 text-white shadow-[0_0px_24px_0px_rgba(0,0,0,0.25)] transition-all duration-150 hover:bg-opacity-90">
-                <span className="hidden md:inline-flex">Place Your Art</span>
-                <span className="md:hidden">Place Your Art</span>
+                <span className="hidden md:inline-flex">Start Creating Now</span>
+                <span className="md:hidden">Start Creating Now</span>
               </Link>
             </div>
           </div>
