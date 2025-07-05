@@ -3,12 +3,15 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { saveCredits, getSession, hasUploadedFile } from '../../utils/sessionStorage'
 
 function SuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [hasExistingUpload, setHasExistingUpload] = useState(false)
+  const [sessionInfo, setSessionInfo] = useState<any>(null)
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id')
@@ -19,7 +22,7 @@ function SuccessContent() {
       return
     }
 
-    // Store credits in localStorage (10 credits for $5 purchase)
+    // Store credits in both new session system and legacy format
     const credits = {
       count: 10,
       purchaseDate: new Date().toISOString(),
@@ -27,10 +30,22 @@ function SuccessContent() {
       expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString() // 48 hours
     }
 
-    localStorage.setItem('artworkCredits', JSON.stringify(credits))
+    // Save to new session storage system
+    saveCredits(credits)
     
-    // Mark as paid user
+    // Also save to legacy format for backward compatibility
+    localStorage.setItem('artworkCredits', JSON.stringify(credits))
     localStorage.setItem('isPaidUser', 'true')
+    
+    // Check if user has existing session data
+    const session = getSession()
+    const hasUpload = hasUploadedFile()
+    
+    setHasExistingUpload(hasUpload)
+    setSessionInfo(session)
+    
+    console.log('Payment successful, credits saved:', credits)
+    console.log('Session restored:', { hasUpload, sessionId: session?.sessionId })
     
     setIsLoading(false)
   }, [searchParams])
@@ -84,8 +99,36 @@ function SuccessContent() {
           {/* Success Message */}
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful! 🎉</h1>
           <p className="text-gray-600 mb-6">
-            You now have <span className="font-semibold text-indigo-600">10 credits</span> to generate artwork placements.
+            {hasExistingUpload ? (
+              <>
+                Perfect! Your artwork and preferences are saved. You now have{' '}
+                <span className="font-semibold text-indigo-600">10 credits</span> to generate placements.
+              </>
+            ) : (
+              <>
+                You now have <span className="font-semibold text-indigo-600">10 credits</span> to generate artwork placements.
+              </>
+            )}
           </p>
+
+          {/* Session Info for returning users */}
+          {hasExistingUpload && sessionInfo && (
+            <div className="bg-green-50 rounded-lg p-4 mb-4">
+              <div className="flex items-center mb-2">
+                <svg className="w-4 h-4 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
+                </svg>
+                <span className="text-sm font-medium text-green-800">Your session is restored!</span>
+              </div>
+              <div className="text-xs text-green-700">
+                • Artwork: {sessionInfo.uploadedFile?.name || 'Uploaded'}
+                <br />
+                • Environment: {sessionInfo.selectedEnvironment?.replace('-', ' ') || 'Selected'}
+                <br />
+                • Ready to generate!
+              </div>
+            </div>
+          )}
 
           {/* Credits Info */}
           <div className="bg-indigo-50 rounded-lg p-4 mb-6">
@@ -104,12 +147,16 @@ function SuccessContent() {
             href="/upload"
             className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors inline-block"
           >
-            Start Creating →
+            {hasExistingUpload ? 'Continue Creating →' : 'Start Creating →'}
           </Link>
 
           {/* Additional Info */}
           <p className="text-xs text-gray-500 mt-4">
-            Your credits are stored locally and will expire in 48 hours. Make sure to use them!
+            {hasExistingUpload ? (
+              'Your artwork and preferences are saved. Continue where you left off!'
+            ) : (
+              'Your credits are stored locally and will expire in 48 hours. Make sure to use them!'
+            )}
           </p>
         </div>
       </div>

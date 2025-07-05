@@ -1,10 +1,24 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Upload, Sparkles, Download, ArrowLeft, CheckCircle, Home, Building, Palette, RefreshCw, RotateCcw, Sun, Lightbulb, Zap, Image, Box, RectangleHorizontal, RectangleVertical, CreditCard, Mail } from 'lucide-react'
+import { Upload, Sparkles, Download, ArrowLeft, CheckCircle, Home, Building, Palette, RefreshCw, RotateCcw, Sun, Lightbulb, Zap, Image as ImageIcon, Box, RectangleHorizontal, RectangleVertical, CreditCard, Mail, ArrowRight, Plus } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
+import Image from 'next/image'
 import { processImageFile, isHEICFile, formatFileSize, validateImageFile } from '../../utils/imageProcessor'
+import { 
+  saveSession, 
+  getSession, 
+  updateSession, 
+  saveUploadedFile, 
+  getUploadedFile, 
+  savePreferences, 
+  getPreferences, 
+  saveCredits, 
+  getCredits, 
+  isPaidUser as isSessionPaidUser,
+  hasUploadedFile 
+} from '../../utils/sessionStorage'
 
 interface PlacementResult {
   success: boolean
@@ -20,18 +34,55 @@ interface Credits {
   expiresAt: string
 }
 
+// Progress Dots Component
+const ProgressDots = ({ currentStep, totalSteps }: { currentStep: number, totalSteps: number }) => {
+  return (
+    <div className="flex items-center justify-center space-x-2 mb-8">
+      {Array.from({ length: totalSteps }, (_, index) => {
+        const stepNumber = index + 1
+        const isCompleted = stepNumber < currentStep
+        const isCurrent = stepNumber === currentStep
+        
+        return (
+          <div key={stepNumber} className="flex items-center">
+            <div
+              className={`w-3 h-3 rounded-full transition-colors ${
+                isCompleted || isCurrent
+                  ? 'bg-green-500'
+                  : 'bg-gray-300'
+              }`}
+            />
+            {stepNumber < totalSteps && (
+              <div
+                className={`w-8 h-0.5 mx-1 transition-colors ${
+                  isCompleted ? 'bg-green-500' : 'bg-gray-300'
+                }`}
+              />
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function UploadPage() {
+  // Step management
+  const [currentStep, setCurrentStep] = useState(1)
+  const totalSteps = 3
+
+  // Existing state
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [placementResult, setPlacementResult] = useState<PlacementResult | null>(null)
-  const [selectedEnvironment, setSelectedEnvironment] = useState('living-room')
+  const [selectedEnvironment, setSelectedEnvironment] = useState('')
   const [customPrompt, setCustomPrompt] = useState('')
   const [artworkDimensions, setArtworkDimensions] = useState({
     width: '',
     height: '',
-    depth: '', // for sculptures
-    unit: 'cm' // cm or inches
+    depth: '',
+    unit: 'cm'
   })
   const [includePedestal, setIncludePedestal] = useState(true)
   const [viewingAngle, setViewingAngle] = useState('front')
@@ -54,31 +105,127 @@ export default function UploadPage() {
   const [showPaymentPrompt, setShowPaymentPrompt] = useState(false)
   const [isConvertingHEIC, setIsConvertingHEIC] = useState(false)
 
-  // Check for existing credits on component mount
+  // Environment options with scene images
+  const environments = [
+    { 
+      id: 'living-room', 
+      name: 'Living Room', 
+      description: 'Modern, elegant living space',
+      image: '/scenes/artwork-in-living-room-upscaled-2 Medium.jpeg'
+    },
+    { 
+      id: 'office', 
+      name: 'Office', 
+      description: 'Professional workspace',
+      image: '/scenes/artwork-in-office-upscaled Medium.jpeg'
+    },
+    { 
+      id: 'hotel-lobby', 
+      name: 'Hotel Lobby', 
+      description: 'Luxury hotel entrance',
+      image: '/scenes/artwork-in-hotel-lobby Medium.jpeg'
+    },
+    { 
+      id: 'gallery', 
+      name: 'Gallery', 
+      description: 'Contemporary art gallery',
+      image: '/scenes/replicate-prediction-epewxcww89rmc0cqv6qre5r5rr Medium.jpeg'
+    }
+  ]
+
+  // Initialize session and restore data on component mount
   useEffect(() => {
-    const storedCredits = localStorage.getItem('artworkCredits')
-    
-    if (storedCredits) {
-      const parsedCredits = JSON.parse(storedCredits)
-      const now = new Date()
-      const expiresAt = new Date(parsedCredits.expiresAt)
+    const session = getSession()
+    if (session) {
+      console.log('Restoring session data:', session.sessionId)
       
-      if (now < expiresAt && parsedCredits.count > 0) {
-        setCredits(parsedCredits)
-        setIsPaidUser(true)
+      if (session.email) {
+        setEmail(session.email)
         setEmailSubmitted(true)
-      } else {
-        // Credits expired or used up
-        localStorage.removeItem('artworkCredits')
-        localStorage.removeItem('isPaidUser')
+      }
+      
+      const sessionCredits = getCredits()
+      if (sessionCredits) {
+        const now = new Date()
+        const expiresAt = new Date(sessionCredits.expiresAt)
+        
+        if (now < expiresAt && sessionCredits.count > 0) {
+          setCredits(sessionCredits)
+          setIsPaidUser(true)
+          setEmailSubmitted(true)
+        }
+      }
+      
+      const savedFile = getUploadedFile()
+      if (savedFile) {
+        setUploadedFile(savedFile)
+        const url = URL.createObjectURL(savedFile)
+        setPreviewUrl(url)
+        console.log('Restored uploaded file:', savedFile.name)
+      }
+      
+      const preferences = getPreferences()
+      if (preferences.selectedEnvironment) setSelectedEnvironment(preferences.selectedEnvironment)
+      if (preferences.customPrompt) setCustomPrompt(preferences.customPrompt)
+      if (preferences.artworkDimensions) setArtworkDimensions(preferences.artworkDimensions)
+      if (preferences.includePedestal !== undefined) setIncludePedestal(preferences.includePedestal)
+      if (preferences.viewingAngle) setViewingAngle(preferences.viewingAngle)
+      if (preferences.selectedLighting) setSelectedLighting(preferences.selectedLighting)
+      if (preferences.artworkType) setArtworkType(preferences.artworkType)
+      if (preferences.aspectRatio) setAspectRatio(preferences.aspectRatio)
+      
+      console.log('Session data restored successfully')
+    } else {
+      const storedCredits = localStorage.getItem('artworkCredits')
+      
+      if (storedCredits) {
+        const parsedCredits = JSON.parse(storedCredits)
+        const now = new Date()
+        const expiresAt = new Date(parsedCredits.expiresAt)
+        
+        if (now < expiresAt && parsedCredits.count > 0) {
+          setCredits(parsedCredits)
+          setIsPaidUser(true)
+          setEmailSubmitted(true)
+          saveCredits(parsedCredits)
+        } else {
+          localStorage.removeItem('artworkCredits')
+          localStorage.removeItem('isPaidUser')
+        }
       }
     }
   }, [])
 
+  // Save session data whenever key state changes
+  useEffect(() => {
+    if (email) {
+      updateSession({ email })
+    }
+  }, [email])
+
+  useEffect(() => {
+    if (emailSubmitted) {
+      updateSession({ email })
+    }
+  }, [emailSubmitted])
+
+  useEffect(() => {
+    const preferences = {
+      selectedEnvironment,
+      customPrompt,
+      artworkDimensions,
+      includePedestal,
+      viewingAngle,
+      selectedLighting,
+      artworkType,
+      aspectRatio
+    }
+    savePreferences(preferences)
+  }, [selectedEnvironment, customPrompt, artworkDimensions, includePedestal, viewingAngle, selectedLighting, artworkType, aspectRatio])
+
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0]
     if (file) {
-      // Validate file first
       const validation = validateImageFile(file)
       if (!validation.valid) {
         alert(validation.error)
@@ -90,6 +237,13 @@ export default function UploadPage() {
       setUploadedFile(file)
       const url = URL.createObjectURL(file)
       setPreviewUrl(url)
+      
+      try {
+        await saveUploadedFile(file)
+        console.log('File saved to session storage')
+      } catch (error) {
+        console.error('Failed to save file to session:', error)
+      }
     }
   }, [])
 
@@ -127,8 +281,6 @@ export default function UploadPage() {
       }
 
       const { url } = await response.json()
-      
-      // Redirect to Stripe Checkout
       window.location.href = url
     } catch (error) {
       console.error('Payment error:', error)
@@ -141,7 +293,6 @@ export default function UploadPage() {
   const placeArtwork = async () => {
     if (!uploadedFile) return
 
-    // Check if user has credits
     if (!isPaidUser || !credits || credits.count <= 0) {
       setShowPaymentPrompt(true)
       return
@@ -150,14 +301,11 @@ export default function UploadPage() {
     setIsProcessing(true)
     
     try {
-      // Show HEIC conversion status if needed
       if (isHEICFile(uploadedFile)) {
         setIsConvertingHEIC(true)
       }
 
-      // Convert file to base64 (with HEIC conversion if needed)
       const base64 = await processImageFile(uploadedFile)
-      
       setIsConvertingHEIC(false)
       
       const response = await fetch('/api/analyze', {
@@ -184,8 +332,8 @@ export default function UploadPage() {
 
       const result = await response.json()
       setPlacementResult(result)
+      setCurrentStep(3) // Move to results step
 
-      // Deduct one credit
       const updatedCredits = {
         ...credits,
         count: credits.count - 1
@@ -202,11 +350,9 @@ export default function UploadPage() {
     }
   }
 
-
   const generateHighResPreview = async () => {
     if (!placementResult?.image_url) return
 
-    // Check if user has credits for upscaling
     if (!isPaidUser || !credits || credits.count <= 0) {
       setShowPaymentPrompt(true)
       return
@@ -232,7 +378,6 @@ export default function UploadPage() {
       const result = await response.json()
       setUpscaledImageUrl(result.upscaled_image_url)
 
-      // Deduct one credit for upscaling
       const updatedCredits = {
         ...credits,
         count: credits.count - 1
@@ -240,18 +385,14 @@ export default function UploadPage() {
       setCredits(updatedCredits)
       localStorage.setItem('artworkCredits', JSON.stringify(updatedCredits))
 
-      // Show the preview modal instead of auto-downloading
       setShowPreviewModal(true)
 
     } catch (error) {
       console.error('Upscaling error:', error)
-      
-      // Try to get more detailed error information
       let errorMessage = 'Upscaling failed. Please try again.'
       if (error instanceof Error) {
         errorMessage = `Upscaling failed: ${error.message}`
       }
-      
       alert(errorMessage)
     } finally {
       setIsUpscaling(false)
@@ -260,12 +401,9 @@ export default function UploadPage() {
 
   const handleStarRating = (rating: number) => {
     setUserRating(rating)
-    
-    // Show feedback form for ratings 4 and above
     if (rating >= 4) {
       setShowFeedbackForm(true)
     } else {
-      // For lower ratings, just collect the rating
       setShowFeedbackForm(false)
     }
   }
@@ -274,11 +412,9 @@ export default function UploadPage() {
     if (!upscaledImageUrl || !placementResult) return
     
     try {
-      // Fetch the image as a blob to force download
       const response = await fetch(upscaledImageUrl)
       const blob = await response.blob()
       
-      // Create a blob URL and download
       const blobUrl = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = blobUrl
@@ -287,11 +423,9 @@ export default function UploadPage() {
       link.click()
       document.body.removeChild(link)
       
-      // Clean up the blob URL
       window.URL.revokeObjectURL(blobUrl)
     } catch (error) {
       console.error('Download failed:', error)
-      // Fallback to direct link
       const link = document.createElement('a')
       link.href = upscaledImageUrl
       link.download = `artwork-in-${placementResult.environment}-upscaled.png`
@@ -306,28 +440,23 @@ export default function UploadPage() {
     if (!userRating) return
 
     try {
-      // Here you would typically send the review to your backend
       const reviewData = {
         rating: userRating,
         feedback: userFeedback,
         environment: placementResult?.environment,
         artworkType: artworkType,
         timestamp: new Date().toISOString(),
-        email: email // You already have this from the payment flow
+        email: email
       }
 
-      // For now, just log it (you can implement the API later)
       console.log('Review submitted:', reviewData)
 
-      // If rating is 4 or 5, suggest Trustpilot
       if (userRating >= 4) {
-        // You can implement Trustpilot redirect here later
         alert('Thank you for your feedback! Your review helps us improve ArtContext.')
       } else {
-        alert('Thank you for your feedback! We&apos;ll use this to improve our service.')
+        alert('Thank you for your feedback! We\'ll use this to improve our service.')
       }
 
-      // Reset review state
       setUserRating(null)
       setUserFeedback('')
       setShowFeedbackForm(false)
@@ -336,17 +465,8 @@ export default function UploadPage() {
     }
   }
 
-
-  const environments = [
-    { id: 'living-room', name: 'Living Room', icon: Home, description: 'Modern, elegant living space' },
-    { id: 'office', name: 'Office', icon: Building, description: 'Professional workspace' },
-    { id: 'gallery', name: 'Gallery', icon: Palette, description: 'Contemporary art gallery' },
-    { id: 'concrete-gallery', name: 'Concrete Gallery', icon: Box, description: 'Industrial concrete space' },
-    { id: 'bedroom', name: 'Bedroom', icon: Home, description: 'Stylish bedroom setting' },
-    { id: 'restaurant', name: 'Restaurant', icon: Building, description: 'Upscale dining space' },
-    { id: 'hotel-lobby', name: 'Hotel Lobby', icon: Building, description: 'Luxury hotel entrance' },
-    { id: 'custom', name: 'Custom', icon: Sparkles, description: 'Your own description' }
-  ]
+  const canProceedToStep2 = uploadedFile && artworkType && artworkDimensions.width && artworkDimensions.height
+  const canProceedToStep3 = selectedEnvironment
 
   // Show email collection first
   if (!emailSubmitted && !isPaidUser) {
@@ -357,8 +477,8 @@ export default function UploadPage() {
             <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-8 h-8 text-indigo-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to ArtContext</h1>
-            <p className="text-gray-600">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to ArtView Pro</h1>
+            <p className="text-gray-900">
               Transform your artwork with AI-powered environment placement
             </p>
           </div>
@@ -473,10 +593,9 @@ export default function UploadPage() {
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Back to Home
               </Link>
-              <h1 className="text-2xl font-bold text-gray-900">ArtContext</h1>
+              <Image src="/logo.svg" alt="ArtView Pro" width={120} height={40} className="h-8 w-auto" />
             </div>
             
-            {/* Credits Display */}
             {isPaidUser && credits && (
               <div className="flex items-center bg-indigo-50 px-4 py-2 rounded-lg">
                 <Sparkles className="w-5 h-5 text-indigo-600 mr-2" />
@@ -490,538 +609,500 @@ export default function UploadPage() {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {!placementResult ? (
-          <div className="space-y-8">
-            {/* Upload Section */}
-            <div className="bg-white rounded-xl shadow-sm p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Upload Your Artwork</h2>
-              
-              {!uploadedFile ? (
-                <div
-                  {...getRootProps()}
-                  className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${
-                    isDragActive 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
-                >
-                  <input {...getInputProps()} />
-                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {isDragActive ? 'Drop your artwork here' : 'Upload artwork photo'}
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Drag and drop your image, or click to browse
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Supports JPG, PNG, WebP, HEIC up to 10MB
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="relative">
-                    <img
-                      src={previewUrl!}
-                      alt="Uploaded artwork"
-                      className="w-full max-w-md mx-auto rounded-lg shadow-md"
-                    />
-                    <button
-                      onClick={() => {
-                        setUploadedFile(null)
-                        setPreviewUrl(null)
-                      }}
-                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600"
-                    >
-                      ×
-                    </button>
-                  </div>
-                  
-                  {/* Artwork Type Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Artwork Type
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {[
-                        { id: 'painting', name: 'Painting', description: 'Flat artwork for walls', icon: Image },
-                        { id: 'sculpture', name: 'Sculpture', description: '3D artwork for spaces', icon: Box }
-                      ].map((type) => {
-                        const IconComponent = type.icon
-                        return (
-                          <button
-                            key={type.id}
-                            onClick={() => setArtworkType(type.id)}
-                            className={`p-4 rounded-lg border text-center transition-colors ${
-                              artworkType === type.id
-                                ? 'border-purple-500 bg-purple-50'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="flex items-center justify-center mb-2">
-                              <IconComponent className="w-6 h-6 text-gray-600" />
-                            </div>
-                            <h4 className="font-semibold">{type.name}</h4>
-                            <p className="text-sm text-gray-600">{type.description}</p>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
+        {/* Progress Dots */}
+        <ProgressDots currentStep={currentStep} totalSteps={totalSteps} />
 
-                  {/* Environment Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Choose Environment
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {environments.map((env) => {
-                        const IconComponent = env.icon
-                        return (
-                          <button
-                            key={env.id}
-                            onClick={() => setSelectedEnvironment(env.id)}
-                            className={`p-4 rounded-lg border text-left transition-colors ${
-                              selectedEnvironment === env.id
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="flex items-center mb-2">
-                              <IconComponent className="w-5 h-5 mr-2 text-gray-600" />
-                              <h4 className="font-semibold">{env.name}</h4>
-                            </div>
-                            <p className="text-sm text-gray-600">{env.description}</p>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Artwork Dimensions */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Artwork Dimensions (for accurate scaling)
-                    </label>
-                    <div className="space-y-4">
-                      {/* Unit Selection */}
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setArtworkDimensions(prev => ({ ...prev, unit: 'cm' }))}
-                          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                            artworkDimensions.unit === 'cm'
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          Centimeters
-                        </button>
-                        <button
-                          onClick={() => setArtworkDimensions(prev => ({ ...prev, unit: 'inches' }))}
-                          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                            artworkDimensions.unit === 'inches'
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          Inches
-                        </button>
-                      </div>
-                      
-                      {/* Dimension Inputs */}
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-600 mb-1">
-                            Width ({artworkDimensions.unit})
-                          </label>
-                          <input
-                            type="number"
-                            value={artworkDimensions.width}
-                            onChange={(e) => setArtworkDimensions(prev => ({ ...prev, width: e.target.value }))}
-                            placeholder="e.g. 50"
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-gray-900"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-600 mb-1">
-                            Height ({artworkDimensions.unit})
-                          </label>
-                          <input
-                            type="number"
-                            value={artworkDimensions.height}
-                            onChange={(e) => setArtworkDimensions(prev => ({ ...prev, height: e.target.value }))}
-                            placeholder="e.g. 70"
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          />
-                        </div>
-                        {artworkType === 'sculpture' && (
-                          <div>
-                            <label className="block text-xs font-medium text-gray-600 mb-1">
-                              Depth ({artworkDimensions.unit})
-                            </label>
-                            <input
-                              type="number"
-                              value={artworkDimensions.depth}
-                              onChange={(e) => setArtworkDimensions(prev => ({ ...prev, depth: e.target.value }))}
-                              placeholder="e.g. 25"
-                              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        Accurate dimensions help create realistic scale in the environment. 
-                        {artworkType === 'sculpture' ? ' For sculptures, include depth for 3D placement.' : ''}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Pedestal Option for Sculptures */}
-                  {artworkType === 'sculpture' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
-                        Placement Options
-                      </label>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setIncludePedestal(true)}
-                          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                            includePedestal
-                              ? 'border-purple-500 bg-purple-50 text-purple-700'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          On Pedestal
-                        </button>
-                        <button
-                          onClick={() => setIncludePedestal(false)}
-                          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                            !includePedestal
-                              ? 'border-purple-500 bg-purple-50 text-purple-700'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          Direct Placement
-                        </button>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-2">
-                        {includePedestal 
-                          ? 'Sculpture will be placed on a 50cm pedestal for better viewing'
-                          : 'Sculpture will be placed directly on surfaces like tables, floors, or shelves'
-                        }
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Viewing Angle Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Viewing Angle
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {[
-                        { 
-                          id: 'front', 
-                          name: 'Front View', 
-                          description: 'Straight-on perspective'
-                        },
-                        { 
-                          id: 'angle', 
-                          name: 'Angled View', 
-                          description: 'Slight side angle'
-                        },
-                        { 
-                          id: 'side', 
-                          name: 'Side View', 
-                          description: 'Profile perspective'
-                        }
-                      ].map((angle) => (
-                        <button
-                          key={angle.id}
-                          onClick={() => setViewingAngle(angle.id)}
-                          className={`p-3 rounded-lg border text-center transition-colors ${
-                            viewingAngle === angle.id
-                              ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          <h4 className="font-semibold text-sm">{angle.name}</h4>
-                          <p className="text-xs text-gray-600 mt-1">{angle.description}</p>
-                        </button>
-                      ))}
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      Choose the viewing angle to control how visitors will see your artwork in the environment
-                    </p>
-                  </div>
-
-                  {/* Lighting Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Lighting Style
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {[
-                        { id: 'well-lit', name: 'Well Lit', description: 'Bright, even lighting', icon: Sun },
-                        { id: 'soft-ambient', name: 'Soft Ambient', description: 'Warm, cozy atmosphere', icon: Lightbulb },
-                        { id: 'dramatic-spotlight', name: 'Dramatic Spotlight', description: 'Focused dramatic lighting', icon: Zap }
-                      ].map((lighting) => {
-                        const IconComponent = lighting.icon
-                        return (
-                          <button
-                            key={lighting.id}
-                            onClick={() => setSelectedLighting(lighting.id)}
-                            className={`p-3 rounded-lg border text-center transition-colors ${
-                              selectedLighting === lighting.id
-                                ? 'border-yellow-500 bg-yellow-50'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="flex items-center justify-center mb-2">
-                              <IconComponent className="w-5 h-5 text-gray-600" />
-                            </div>
-                            <h4 className="font-semibold text-sm">{lighting.name}</h4>
-                            <p className="text-xs text-gray-600">{lighting.description}</p>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Aspect Ratio Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Output Aspect Ratio
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {[
-                        { id: '4:3', name: '4:3', description: 'Standard landscape for rooms and galleries', icon: RectangleHorizontal },
-                        { id: '3:4', name: '3:4', description: 'Portrait orientation for tall artworks', icon: RectangleVertical }
-                      ].map((ratio) => {
-                        const IconComponent = ratio.icon
-                        return (
-                          <button
-                            key={ratio.id}
-                            onClick={() => setAspectRatio(ratio.id)}
-                            className={`p-4 rounded-lg border text-center transition-colors ${
-                              aspectRatio === ratio.id
-                                ? 'border-green-500 bg-green-50'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                          >
-                            <div className="flex items-center justify-center mb-2">
-                              <IconComponent className="w-6 h-6 text-gray-600" />
-                            </div>
-                            <h4 className="font-semibold text-sm">{ratio.name}</h4>
-                            <p className="text-xs text-gray-600">{ratio.description}</p>
-                          </button>
-                        )
-                      })}
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      Choose the aspect ratio that best showcases your artwork while providing meaningful environmental context
-                    </p>
-                  </div>
-
-                  {/* Custom Prompt Input */}
-                  {selectedEnvironment === 'custom' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Custom Environment Description
-                      </label>
-                      <textarea
-                        value={customPrompt}
-                        onChange={(e) => setCustomPrompt(e.target.value)}
-                        placeholder="Describe the environment where you want to place your artwork..."
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-gray-900"
-                        rows={3}
-                      />
-                    </div>
-                  )}
-
-                  <button
-                    onClick={placeArtwork}
-                    disabled={isProcessing || (selectedEnvironment === 'custom' && !customPrompt.trim())}
-                    className="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Sparkles className="w-5 h-5 mr-2 animate-spin" />
-                        Placing artwork...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-5 h-5 mr-2" />
-                        Generate Artwork Placement
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
+        {/* Step 1: Upload & Configure */}
+        {currentStep === 1 && (
+          <div className="bg-white rounded-xl shadow-sm p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">Upload Your Artwork</h2>
+              <p className="text-lg text-gray-600">
+                Let's start by uploading your artwork and telling us a bit about it
+              </p>
             </div>
-
-            {/* Processing Status */}
-            {isProcessing && (
-              <div className="bg-white rounded-xl shadow-sm p-8">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {isConvertingHEIC ? 'Converting HEIC to JPG...' : 'AI is placing your artwork...'}
-                  </h3>
-                  <p className="text-gray-600">
-                    {isConvertingHEIC 
-                      ? 'Converting your iPhone photo to a compatible format. This reduces file size and ensures compatibility.'
-                      : 'This usually takes 20-30 seconds. We\'re creating a realistic visualization of your artwork in the selected environment.'
-                    }
-                  </p>
-                </div>
+            
+            {!uploadedFile ? (
+              <div
+                {...getRootProps()}
+                className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors mb-8 ${
+                  isDragActive 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <input {...getInputProps()} />
+                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {isDragActive ? 'Drop your artwork here' : 'Upload artwork photo'}
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Drag and drop your image, or click to browse
+                </p>
+                <p className="text-sm text-gray-500">
+                  Supports JPG, PNG, WebP, HEIC up to 10MB
+                </p>
               </div>
-            )}
-          </div>
-        ) : (
-          /* Results Section */
-          <div className="space-y-8">
-            <div className="bg-white rounded-xl shadow-sm p-8">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  <CheckCircle className="w-6 h-6 text-green-500 mr-2" />
-                  <h2 className="text-2xl font-bold text-gray-900">Placement Complete</h2>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={placeArtwork}
-                    disabled={isProcessing}
-                    className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    <RefreshCw className={`w-4 h-4 mr-2 ${isProcessing ? 'animate-spin' : ''}`} />
-                    Retry
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Original Artwork</h3>
+            ) : (
+              <div className="space-y-6">
+                <div className="relative max-w-md mx-auto">
                   <img
                     src={previewUrl!}
-                    alt="Original artwork"
+                    alt="Uploaded artwork"
                     className="w-full rounded-lg shadow-md"
                   />
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    Placed in {environments.find(e => e.id === placementResult.environment)?.name}
-                  </h3>
-                  <img
-                    src={placementResult.image_url}
-                    alt="Artwork placed in environment"
-                    className="w-full rounded-lg shadow-md"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-semibold text-gray-900 mb-3">✨ Your Artwork Configuration:</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center">
-                    <span className="text-gray-600">• Type:</span>
-                    <span className="ml-2 font-medium text-gray-900 capitalize">{artworkType}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-600">• Environment:</span>
-                    <span className="ml-2 font-medium text-gray-900">
-                      {environments.find(e => e.id === selectedEnvironment)?.name || selectedEnvironment}
-                    </span>
-                  </div>
-                  {(artworkDimensions.width && artworkDimensions.height) && (
-                    <div className="flex items-center">
-                      <span className="text-gray-600">• Dimensions:</span>
-                      <span className="ml-2 font-medium text-gray-900">
-                        {artworkDimensions.width} × {artworkDimensions.height}
-                        {artworkType === 'sculpture' && artworkDimensions.depth && ` × ${artworkDimensions.depth}`}
-                        {artworkDimensions.unit}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex items-center">
-                    <span className="text-gray-600">• Lighting:</span>
-                    <span className="ml-2 font-medium text-gray-900 capitalize">{selectedLighting.replace('-', ' ')}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-600">• Viewing Angle:</span>
-                    <span className="ml-2 font-medium text-gray-900 capitalize">{viewingAngle.replace('-', ' ')} View</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-gray-600">• Aspect Ratio:</span>
-                    <span className="ml-2 font-medium text-gray-900">{aspectRatio} {aspectRatio === '4:3' ? 'Landscape' : 'Portrait'}</span>
-                  </div>
-                  {artworkType === 'sculpture' && (
-                    <div className="flex items-center">
-                      <span className="text-gray-600">• Placement:</span>
-                      <span className="ml-2 font-medium text-gray-900">{includePedestal ? 'On Pedestal' : 'Direct Placement'}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-8 pt-8 border-t border-gray-200">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button
-                    onClick={() => {
-                      setPlacementResult(null)
-                    }}
-                    className="flex-1 bg-orange-100 text-orange-700 py-3 rounded-lg font-semibold hover:bg-orange-200 flex items-center justify-center"
-                  >
-                    <RotateCcw className="w-4 h-4 mr-2" />
-                    Place in Other Context
-                  </button>
                   <button
                     onClick={() => {
                       setUploadedFile(null)
                       setPreviewUrl(null)
-                      setPlacementResult(null)
-                      setSelectedEnvironment('living-room')
-                      setCustomPrompt('')
-                      setArtworkDimensions({ width: '', height: '', depth: '', unit: 'cm' })
-                      setIncludePedestal(true)
-                      setViewingAngle('front')
-                      setSelectedLighting('well-lit')
-                      setArtworkType('painting')
-                      setAspectRatio('4:3')
                     }}
-                    className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200"
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600"
                   >
-                    Place Another Artwork
-                  </button>
-                  <button
-                    onClick={generateHighResPreview}
-                    disabled={isUpscaling}
-                    className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
-                  >
-                    {isUpscaling ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Generating Preview...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Generate High-Res Preview (+1 credit)
-                      </>
-                    )}
+                    ×
                   </button>
                 </div>
                 
+                {/* Artwork Type Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    What type of artwork is this?
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { id: 'painting', name: 'Painting', description: 'Flat artwork for walls', icon: ImageIcon },
+                      { id: 'sculpture', name: 'Sculpture', description: '3D artwork for spaces', icon: Box }
+                    ].map((type) => {
+                      const IconComponent = type.icon
+                      return (
+                        <button
+                          key={type.id}
+                          onClick={() => setArtworkType(type.id)}
+                          className={`p-4 rounded-lg border text-center transition-colors ${
+                            artworkType === type.id
+                              ? 'border-green-500 bg-green-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center mb-2">
+                            <IconComponent className="w-6 h-6 text-gray-600" />
+                          </div>
+                          <h4 className="font-semibold">{type.name}</h4>
+                          <p className="text-sm text-gray-600">{type.description}</p>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Artwork Dimensions */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Artwork Dimensions (for accurate scaling)
+                  </label>
+                  <div className="space-y-4">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setArtworkDimensions(prev => ({ ...prev, unit: 'cm' }))}
+                        className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                          artworkDimensions.unit === 'cm'
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        Centimeters
+                      </button>
+                      <button
+                        onClick={() => setArtworkDimensions(prev => ({ ...prev, unit: 'inches' }))}
+                        className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                          artworkDimensions.unit === 'inches'
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        Inches
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          Width ({artworkDimensions.unit})
+                        </label>
+                        <input
+                          type="number"
+                          value={artworkDimensions.width}
+                          onChange={(e) => setArtworkDimensions(prev => ({ ...prev, width: e.target.value }))}
+                          placeholder="e.g. 50"
+                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          Height ({artworkDimensions.unit})
+                        </label>
+                        <input
+                          type="number"
+                          value={artworkDimensions.height}
+                          onChange={(e) => setArtworkDimensions(prev => ({ ...prev, height: e.target.value }))}
+                          placeholder="e.g. 70"
+                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      {artworkType === 'sculpture' && (
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                            Depth ({artworkDimensions.unit})
+                          </label>
+                          <input
+                            type="number"
+                            value={artworkDimensions.depth}
+                            onChange={(e) => setArtworkDimensions(prev => ({ ...prev, depth: e.target.value }))}
+                            placeholder="e.g. 25"
+                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setCurrentStep(2)}
+                    disabled={!canProceedToStep2}
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  >
+                    Continue to Environment Selection
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </button>
+                </div>
               </div>
+            )}
+          </div>
+        )}
+
+        {/* Step 2: Choose Environment - HeadshotPro Style */}
+        {currentStep === 2 && (
+          <div className="bg-white rounded-xl shadow-sm p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">Choose Your Environment</h2>
+              <p className="text-lg text-gray-600">
+                Choose which environment you want for your artwork visualization
+              </p>
+              <div className="mt-4 inline-flex items-center bg-gray-100 px-4 py-2 rounded-lg">
+                <span className="text-sm font-medium text-gray-700">Selected environments</span>
+                <span className="ml-2 bg-blue-600 text-white px-2 py-1 rounded text-sm font-bold">
+                  {selectedEnvironment ? '1' : '0'}/1
+                </span>
+              </div>
+            </div>
+
+            {/* Environment Grid - HeadshotPro Style */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {environments.map((env) => (
+                <div key={env.id} className="relative group">
+                  <div
+                    className={`relative overflow-hidden rounded-lg border-2 cursor-pointer transition-all ${
+                      selectedEnvironment === env.id
+                        ? 'border-green-500 ring-2 ring-green-200'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setSelectedEnvironment(env.id)}
+                  >
+                    <div className="aspect-[4/3] relative">
+                      <Image
+                        src={env.image}
+                        alt={env.name}
+                        fill
+                        className="object-cover"
+                      />
+                      {selectedEnvironment === env.id && (
+                        <div className="absolute top-2 right-2">
+                          <CheckCircle className="w-6 h-6 text-green-600 bg-white rounded-full" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-lg text-gray-900">{env.name}</h3>
+                      <p className="text-sm text-gray-600 mt-1">{env.description}</p>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => setSelectedEnvironment(env.id)}
+                    className={`absolute bottom-4 right-4 px-4 py-2 rounded-lg font-medium transition-colors ${
+                      selectedEnvironment === env.id
+                        ? 'bg-green-600 text-white'
+                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {selectedEnvironment === env.id ? (
+                      <span className="flex items-center">
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        Selected
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        <Plus className="w-4 h-4 mr-1" />
+                        Select
+                      </span>
+                    )}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Additional Settings */}
+            {selectedEnvironment && (
+              <div className="space-y-6 border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-900">Fine-tune your visualization</h3>
+                
+                {/* Lighting Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Lighting Style
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {[
+                      { id: 'well-lit', name: 'Well Lit', description: 'Bright, even lighting', icon: Sun },
+                      { id: 'soft-ambient', name: 'Soft Ambient', description: 'Warm, cozy atmosphere', icon: Lightbulb },
+                      { id: 'dramatic-spotlight', name: 'Dramatic Spotlight', description: 'Focused dramatic lighting', icon: Zap }
+                    ].map((lighting) => {
+                      const IconComponent = lighting.icon
+                      return (
+                        <button
+                          key={lighting.id}
+                          onClick={() => setSelectedLighting(lighting.id)}
+                          className={`p-3 rounded-lg border text-center transition-colors ${
+                            selectedLighting === lighting.id
+                              ? 'border-yellow-500 bg-yellow-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center mb-2">
+                            <IconComponent className="w-5 h-5 text-gray-600" />
+                          </div>
+                          <h4 className="font-semibold text-sm">{lighting.name}</h4>
+                          <p className="text-xs text-gray-600">{lighting.description}</p>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Viewing Angle Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Viewing Angle
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                      { id: 'front', name: 'From the Front', description: 'Straight-on view, classic presentation', icon: ImageIcon },
+                      { id: 'angle', name: 'From an Angle', description: 'Dynamic angled perspective', icon: RotateCcw }
+                    ].map((angle) => {
+                      const IconComponent = angle.icon
+                      return (
+                        <button
+                          key={angle.id}
+                          onClick={() => setViewingAngle(angle.id)}
+                          className={`p-4 rounded-lg border text-center transition-colors ${
+                            viewingAngle === angle.id
+                              ? 'border-purple-500 bg-purple-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center mb-2">
+                            <IconComponent className="w-6 h-6 text-gray-600" />
+                          </div>
+                          <h4 className="font-semibold text-sm">{angle.name}</h4>
+                          <p className="text-xs text-gray-600">{angle.description}</p>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Aspect Ratio Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Output Aspect Ratio
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                      { id: '4:3', name: '4:3', description: 'Standard landscape for rooms and galleries', icon: RectangleHorizontal },
+                      { id: '3:4', name: '3:4', description: 'Portrait orientation for tall artworks', icon: RectangleVertical }
+                    ].map((ratio) => {
+                      const IconComponent = ratio.icon
+                      return (
+                        <button
+                          key={ratio.id}
+                          onClick={() => setAspectRatio(ratio.id)}
+                          className={`p-4 rounded-lg border text-center transition-colors ${
+                            aspectRatio === ratio.id
+                              ? 'border-green-500 bg-green-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-center mb-2">
+                            <IconComponent className="w-6 h-6 text-gray-600" />
+                          </div>
+                          <h4 className="font-semibold text-sm">{ratio.name}</h4>
+                          <p className="text-xs text-gray-600">{ratio.description}</p>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-between mt-8">
+              <button
+                onClick={() => setCurrentStep(1)}
+                className="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </button>
+              <button
+                onClick={placeArtwork}
+                disabled={!canProceedToStep3 || isProcessing}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              >
+                {isProcessing ? (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                    {isConvertingHEIC ? 'Converting HEIC...' : 'Generating...'}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Artwork Placement
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Results */}
+        {currentStep === 3 && placementResult && (
+          <div className="bg-white rounded-xl shadow-sm p-8">
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center mb-4">
+                <CheckCircle className="w-8 h-8 text-green-500 mr-3" />
+                <h2 className="text-3xl font-bold text-gray-900">Placement Complete!</h2>
+              </div>
+              <p className="text-lg text-gray-600">
+                Your artwork has been successfully placed in the {environments.find(e => e.id === selectedEnvironment)?.name}
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Original Artwork</h3>
+                <img
+                  src={previewUrl!}
+                  alt="Original artwork"
+                  className="w-full rounded-lg shadow-md"
+                />
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                  Placed in {environments.find(e => e.id === placementResult.environment)?.name}
+                </h3>
+                <img
+                  src={placementResult.image_url}
+                  alt="Artwork placed in environment"
+                  className="w-full rounded-lg shadow-md"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h4 className="font-semibold text-gray-900 mb-3">✨ Your Artwork Configuration:</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                <div className="flex items-center">
+                  <span className="text-gray-600">• Type:</span>
+                  <span className="ml-2 font-medium text-gray-900 capitalize">{artworkType}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-600">• Environment:</span>
+                  <span className="ml-2 font-medium text-gray-900">
+                    {environments.find(e => e.id === selectedEnvironment)?.name || selectedEnvironment}
+                  </span>
+                </div>
+                {(artworkDimensions.width && artworkDimensions.height) && (
+                  <div className="flex items-center">
+                    <span className="text-gray-600">• Dimensions:</span>
+                    <span className="ml-2 font-medium text-gray-900">
+                      {artworkDimensions.width} × {artworkDimensions.height}
+                      {artworkType === 'sculpture' && artworkDimensions.depth && ` × ${artworkDimensions.depth}`}
+                      {artworkDimensions.unit}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center">
+                  <span className="text-gray-600">• Lighting:</span>
+                  <span className="ml-2 font-medium text-gray-900 capitalize">{selectedLighting.replace('-', ' ')}</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-600">• Aspect Ratio:</span>
+                  <span className="ml-2 font-medium text-gray-900">{aspectRatio} {aspectRatio === '4:3' ? 'Landscape' : 'Portrait'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 mt-8">
+              <button
+                onClick={() => {
+                  setCurrentStep(2)
+                  setPlacementResult(null)
+                }}
+                className="flex-1 bg-orange-100 text-orange-700 py-3 rounded-lg font-semibold hover:bg-orange-200 flex items-center justify-center"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Try Different Environment
+              </button>
+              <button
+                onClick={() => {
+                  setUploadedFile(null)
+                  setPreviewUrl(null)
+                  setPlacementResult(null)
+                  setSelectedEnvironment('')
+                  setCurrentStep(1)
+                }}
+                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200"
+              >
+                Place Another Artwork
+              </button>
+              <button
+                onClick={generateHighResPreview}
+                disabled={isUpscaling}
+                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
+              >
+                {isUpscaling ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Generating Preview...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    High-Res Preview (+1 credit)
+                  </>
+                )}
+              </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* High-Res Preview Modal - Simple & Focused */}
+      {/* Fixed High-Res Preview Modal */}
       {showPreviewModal && upscaledImageUrl && placementResult && (
-        <div className="fixed inset-0 bg-white bg-opacity-95 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[95vh] flex flex-col my-auto">
+        <div className="fixed inset-0 bg-white bg-opacity-95 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
               <div className="flex items-center">
@@ -1042,7 +1123,7 @@ export default function UploadPage() {
             </div>
 
             {/* Main Image Display */}
-            <div className="flex-1 flex items-center justify-center p-6 bg-gray-50">
+            <div className="flex-1 flex items-center justify-center p-6 bg-white overflow-auto">
               <img
                 src={upscaledImageUrl}
                 alt="High resolution artwork"
@@ -1050,18 +1131,15 @@ export default function UploadPage() {
               />
             </div>
 
-            {/* Bottom Controls - Compact */}
+            {/* Bottom Controls */}
             <div className="flex-shrink-0 p-4 bg-white border-t border-gray-200">
-              {/* Quality Info */}
               <div className="text-center mb-4">
                 <p className="text-sm text-gray-600">
                   <span className="font-semibold text-indigo-600">2x Enhanced Resolution</span> • Perfect for printing and professional use
                 </p>
               </div>
 
-              {/* Review & Download Row */}
               <div className="flex items-center justify-between">
-                {/* Review Collection */}
                 <div className="flex items-center space-x-3">
                   <span className="text-sm font-medium text-gray-700">Rate this:</span>
                   <div className="flex">
@@ -1089,7 +1167,6 @@ export default function UploadPage() {
                   )}
                 </div>
 
-                {/* Download Button */}
                 <button
                   onClick={downloadHighRes}
                   className="bg-blue-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-blue-700 flex items-center"
@@ -1099,7 +1176,6 @@ export default function UploadPage() {
                 </button>
               </div>
 
-              {/* Feedback Form for High Ratings */}
               {showFeedbackForm && userRating && userRating >= 4 && (
                 <div className="mt-3 bg-green-50 rounded-lg p-3">
                   <div className="flex items-center space-x-2">

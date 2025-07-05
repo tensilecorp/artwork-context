@@ -9,21 +9,21 @@ export default function Home() {
       <div className="hidden lg:block py-2.5 border-b border-gray-200 bg-gray-50">
         <div className="max-w-screen-xl px-4 mx-auto 2xl:px-0 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
-            <p className="flex items-center gap-1 text-xs font-medium text-gray-700">
+            <p className="flex items-center gap-1 text-xs font-medium text-gray-900">
               <CheckCircle className="w-3 h-3 text-green-500" />
               <span>Founded in Holland. We respect your privacy.</span>
             </p>
-            <div className="flex items-center gap-1 text-xs font-medium text-gray-700">
+            <div className="flex items-center gap-1 text-xs font-medium text-gray-900">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-3 h-3 text-green-500 fill-current" />
                 ))}
               </div>
-              <span>Used by 5,207 happy customers</span>
+              <span>Used by 520+ happy customers</span>
             </div>
-            <p className="flex items-center gap-1 text-xs font-medium text-gray-700">
+            <p className="flex items-center gap-1 text-xs font-medium text-gray-900">
               <CheckCircle className="w-3 h-3 text-green-500" />
-              <span>50,000+ professional artwork visualizations created</span>
+              <span>5,000+ artworks delivered</span>
             </p>
           </div>
         </div>
@@ -33,18 +33,17 @@ export default function Home() {
       <header className="sticky inset-x-0 top-0 z-50 py-3 border-b border-gray-100 backdrop-blur-lg bg-white/80">
         <div className="max-w-screen-xl px-4 mx-auto 2xl:px-0 sm:px-6 md:px-8">
           <div className="flex items-center justify-between gap-6 md:gap-8">
-            <div className="flex items-center gap-3">
-              <Link href="/" className="flex items-center gap-2">
-                <Image src="/logo.png" alt="ArtView Pro" width={32} height={32} className="w-8 h-8" />
-                <h1 className="text-2xl font-bold text-gray-900">ArtView Pro</h1>
+            <div className="flex items-center">
+              <Link href="/" className="flex items-center">
+                <Image src="/logo.svg" alt="ArtView Pro" width={120} height={40} className="h-8 w-auto" />
               </Link>
             </div>
             
             <div className="items-center justify-start flex-1 hidden min-w-0 gap-6 md:flex lg:gap-8">
-              <a href="#examples" className="text-base font-semibold transition-all duration-150 text-gray-700 hover:text-opacity-80">
+              <Link href="/examples" className="text-base font-semibold transition-all duration-150 text-gray-900 hover:text-opacity-80">
                 Examples
-              </a>
-              <a href="#pricing" className="text-base font-semibold transition-all duration-150 text-gray-700 hover:text-opacity-80">
+              </Link>
+              <a href="#pricing" className="text-base font-semibold transition-all duration-150 text-gray-900 hover:text-opacity-80">
                 Pricing
               </a>
             </div>
@@ -73,24 +72,24 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="tracking-tight">
-                  <span className="text-gray-700">Rated <strong className="text-black">4.9</strong> out of 5 with</span>
-                  <span className="text-gray-700 ml-1"><strong className="text-black">1,247</strong> reviews</span>
+                  <span className="text-gray-900">Rated <strong className="text-black">4.8</strong> out of 5 with</span>
+                  <span className="text-gray-900 ml-1"><strong className="text-black">127</strong> reviews</span>
                 </p>
               </div>
             </div>
 
             <h2 className="mt-3 text-balance text-2xl font-bold leading-tight tracking-tight text-gray-900 sm:mt-6 sm:text-4xl xl:text-[42px]">
-              Professional artwork visualization, without a physical photo shoot
+              Professional artwork mockups — no studio required
             </h2>
             
             <h1 className="text-xs font-bold text-gray-700 sm:text-sm lg:text-base mt-4">
-              The #1 AI Artwork Placement Generator for Professional Visualization
+              The #1 AI tool to visualize your art in real spaces
             </h1>
             
             <p className="mt-3 text-base font-medium text-gray-600 sm:text-lg">
               Transform any artwork photo by placing it perfectly in real environments. 
               See how your paintings and sculptures look in living rooms, offices, galleries, and more.
-              <strong className="ml-1">All we need is a photo of your artwork.</strong>
+              <strong className="ml-1">All we need is one photo of your artwork.</strong>
             </p>
 
             <div className="mt-6 flex flex-col md:flex-row gap-3 items-center justify-center">
@@ -104,7 +103,7 @@ export default function Home() {
 
         {/* Animated Slideshow */}
         <div className="relative overflow-hidden px-2 mt-8 py-4">
-          <div className="flex flex-row gap-2 animate-infinite-scroll">
+          <div className="flex flex-row gap-2 animate-infinite-scroll justify-center">
             {/* Real artwork placement examples */}
             <div className="flex-shrink-0 relative group rounded-md">
               <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[32px] h-[32px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[64px] group-hover:h-[64px] transition-all duration-300 z-20" style={{transform: 'rotate(8deg)'}}>
@@ -284,7 +283,7 @@ export default function Home() {
             </h2>
             
             <p className="mt-3 text-base font-medium text-gray-600 sm:text-lg md:mx-auto md:max-w-2xl lg:text-xl">
-              Save hundreds of dollars and hours of time by using ArtContext to generate professional artwork visualizations.
+              Save hundreds of dollars and hours of time by using ArtView Pro to generate professional artwork visualizations.
             </p>
           </div>
 
@@ -292,7 +291,7 @@ export default function Home() {
             <div className="w-full rounded-lg border border-gray-200 bg-white p-6 md:p-8 shadow-[0px_0px_75px_0px_rgba(0,0,0,0.07)] lg:max-w-lg">
               <div className="mt-6 flex items-center gap-2">
                 <p className="text-xl font-bold text-gray-900">With</p>
-                <span className="text-xl font-bold text-blue-600">ArtContext</span>
+                <span className="text-xl font-bold text-blue-600">ArtView Pro</span>
               </div>
               
               <ul className="mt-6 space-y-4 md:space-y-8">
@@ -317,11 +316,11 @@ export default function Home() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-lg font-bold leading-none text-gray-900">
-                      2. Let our AI work its magic
+                      2. Let our AI place it perfectly
                       <span className="font-normal hidden md:inline-flex ml-1">(30 seconds)</span>
                     </p>
                     <p className="mt-1 text-base font-normal text-gray-600">
-                      Our AI will perfectly place your artwork in realistic environments.
+                      Our system puts your art in curated, realistic spaces — automatically.
                     </p>
                   </div>
                 </li>
@@ -332,11 +331,11 @@ export default function Home() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-lg font-bold leading-none text-gray-900">
-                      3. Download your visualizations
+                      3. Download high-res mockups
                       <span className="font-normal hidden md:inline-flex ml-1">(30 seconds)</span>
                     </p>
                     <p className="mt-1 text-base font-normal text-gray-600">
-                      That was easy! Download your professional visualizations and share them.
+                      Get gallery-quality results, ready to share or sell.
                     </p>
                   </div>
                 </li>
@@ -396,6 +395,91 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Before/After Example Section */}
+      <section className="bg-white py-12 sm:py-16 border-t border-gray-200">
+        <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 2xl:px-0">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-3">
+              See the Transformation
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Real results from real artists. Watch how a simple artwork photo becomes a professional visualization in seconds.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 md:p-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                {/* Before */}
+                <div className="text-center">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Before: Raw Photo</h3>
+                  <div className="relative">
+                    <div className="bg-white p-3 rounded-xl shadow-lg">
+                      <Image
+                        src="/front-page-example-original.jpeg"
+                        alt="Original artwork photo"
+                        width={300}
+                        height={200}
+                        className="w-full h-auto rounded-lg"
+                      />
+                    </div>
+                    <div className="absolute -top-2 -right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                      Raw
+                    </div>
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex justify-center items-center">
+                  <div className="flex flex-col items-center text-blue-600">
+                    <div className="flex items-center space-x-1">
+                      <Sparkles className="w-5 h-5" />
+                      <span className="font-bold text-sm">AI Magic</span>
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <span className="text-xs text-gray-600 font-medium mt-1">30 seconds</span>
+                  </div>
+                </div>
+
+                {/* After */}
+                <div className="text-center">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">After: Pro Result</h3>
+                  <div className="relative">
+                    <div className="bg-white p-3 rounded-xl shadow-lg">
+                      <Image
+                        src="/front-page-example-result.png"
+                        alt="Professional artwork visualization"
+                        width={300}
+                        height={200}
+                        className="w-full h-auto rounded-lg"
+                      />
+                    </div>
+                    <div className="absolute -top-2 -right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                      Pro
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="text-center mt-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Ready to Transform Your Artwork?</h3>
+                <Link 
+                  href="/upload" 
+                  className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-lg"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Start Your Transformation
+                </Link>
+                <p className="text-sm text-gray-500 mt-2">
+                  🎉 Launch Special: Just $5 for 10 visualizations
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing */}
       <section id="pricing" className="bg-gray-50 py-12 sm:py-16 lg:py-20 xl:py-24">
         <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 2xl:px-0">
@@ -408,8 +492,8 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="tracking-tight">
-                  <span className="text-gray-700">Rated <strong className="text-black">4.9</strong> out of 5 with</span>
-                  <span className="text-gray-700 ml-1"><strong className="text-black">1,247</strong> reviews</span>
+                  <span className="text-gray-900">Rated <strong className="text-black">4.8</strong> out of 5 with</span>
+                  <span className="text-gray-900 ml-1"><strong className="text-black">127</strong> reviews</span>
                 </p>
               </div>
             </div>
@@ -432,18 +516,21 @@ export default function Home() {
                 </span>
               </div>
               <div className="text-center">
-                <h3 className="text-2xl font-bold mb-2 text-gray-900">Get Started</h3>
+                <h3 className="text-2xl font-bold mb-2 text-gray-900">🎉 Launch Special: $5</h3>
+                <div className="text-lg text-gray-900 mb-4">
+                  Get 10 professional mockups of your artwork in curated real-life spaces.<br/>
+                  Just upload, place, and download — no subscriptions, no waiting.
+                </div>
                 <div className="text-5xl font-bold text-blue-600 mb-2">$5</div>
-                <p className="text-gray-600 mb-6">10 professional visualizations</p>
                 
                 <ul className="space-y-4 mb-8 text-left">
                   <li className="flex items-center text-gray-900">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
-                    10 artwork placements
+                    ✅ One-time payment
                   </li>
                   <li className="flex items-center text-gray-900">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
-                    8 environment options
+                    ✅ No subscription
                   </li>
                   <li className="flex items-center text-gray-900">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
@@ -455,13 +542,15 @@ export default function Home() {
                   </li>
                   <li className="flex items-center text-gray-900">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
-                    Valid for 48 hours
-                  </li>
-                  <li className="flex items-center text-gray-900">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
-                    No subscription required
+                    8 environment options
                   </li>
                 </ul>
+                
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
+                  <p className="text-sm font-bold text-red-700 text-center">
+                    🔒 Only available for 48 hours
+                  </p>
+                </div>
                 
                 <Link href="/upload" className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-block text-center">
                   Start Creating Now
@@ -586,18 +675,18 @@ export default function Home() {
 
           <div className="mt-8 sm:mt-12 md:flex md:items-center md:justify-between md:gap-6">
             <div className="flex flex-wrap items-center gap-5">
-              <a href="#" className="text-base font-normal text-white transition-all duration-150 hover:opacity-80">
-                About us
-              </a>
-              <a href="#" className="text-base font-normal text-white transition-all duration-150 hover:opacity-80">
-                Blog
-              </a>
-              <a href="#" className="text-base font-normal text-white transition-all duration-150 hover:opacity-80">
+              <Link href="/examples" className="text-base font-normal text-white transition-all duration-150 hover:opacity-80">
+                Examples
+              </Link>
+              <Link href="/contact" className="text-base font-normal text-white transition-all duration-150 hover:opacity-80">
                 Contact
-              </a>
+              </Link>
+              <Link href="/disclaimer" className="text-base font-normal text-white transition-all duration-150 hover:opacity-80">
+                Privacy & Legal
+              </Link>
             </div>
             <p className="mt-12 text-base font-normal text-white md:mt-0">
-              © 2025 ArtContext. All Rights Reserved
+              © 2025 ArtView Pro. All Rights Reserved
             </p>
           </div>
         </div>
