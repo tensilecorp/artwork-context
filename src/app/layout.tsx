@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Artwork Context - AI-Powered Art Placement Visualization",
-  description: "Transform your artwork with AI. Upload photos of paintings or sculptures and see them perfectly placed in beautiful contexts - galleries, homes, and custom environments.",
-  keywords: "AI art placement, artwork visualization, art context, painting placement, sculpture display, art gallery, interior design",
-  authors: [{ name: "Artwork Context" }],
+  title: "ArtView Pro – Instantly Visualize Your Artwork in Real Spaces",
+  description: "Professional artwork mockups in 30 seconds. Upload your art and see it perfectly placed in living rooms, galleries, offices, and more. No studio required.",
+  keywords: "AI art placement, artwork visualization, art mockups, painting placement, sculpture display, art gallery, interior design, professional art photography",
+  authors: [{ name: "ArtView Pro" }],
   icons: {
     icon: [
       { url: '/favicon_32x32.png', sizes: '32x32', type: 'image/png' },
@@ -29,15 +29,16 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "Artwork Context - AI-Powered Art Placement",
-    description: "Transform your artwork with AI. See your paintings and sculptures in beautiful contexts.",
+    title: "ArtView Pro – Instantly Visualize Your Artwork in Real Spaces",
+    description: "Professional artwork mockups in 30 seconds. Upload your art and see it perfectly placed in living rooms, galleries, offices, and more. No studio required.",
     type: "website",
     locale: "en_US",
+    siteName: "ArtView Pro",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Artwork Context - AI-Powered Art Placement",
-    description: "Transform your artwork with AI. See your paintings and sculptures in beautiful contexts.",
+    title: "ArtView Pro – Instantly Visualize Your Artwork in Real Spaces",
+    description: "Professional artwork mockups in 30 seconds. Upload your art and see it perfectly placed in living rooms, galleries, offices, and more. No studio required.",
   },
   robots: {
     index: true,
