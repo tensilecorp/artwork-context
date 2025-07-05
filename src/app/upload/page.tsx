@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Upload, Sparkles, Download, ArrowLeft, CheckCircle, Home, Building, Palette, RefreshCw, RotateCcw, Sun, Lightbulb, Zap, Image, Box, RectangleHorizontal, RectangleVertical, CreditCard, Mail } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 import Link from 'next/link'
-import { processImageFile } from '../../utils/imageOrientation'
+import { processImageFile, isHEICFile, formatFileSize } from '../../utils/heicConverter'
 
 interface PlacementResult {
   success: boolean
@@ -52,6 +52,7 @@ export default function UploadPage() {
   const [isPaidUser, setIsPaidUser] = useState(false)
   const [isCheckingOut, setIsCheckingOut] = useState(false)
   const [showPaymentPrompt, setShowPaymentPrompt] = useState(false)
+  const [isConvertingHEIC, setIsConvertingHEIC] = useState(false)
 
   // Check for existing credits on component mount
   useEffect(() => {
@@ -140,8 +141,15 @@ export default function UploadPage() {
     setIsProcessing(true)
     
     try {
-      // Convert file to base64 with EXIF orientation correction
+      // Show HEIC conversion status if needed
+      if (isHEICFile(uploadedFile)) {
+        setIsConvertingHEIC(true)
+      }
+
+      // Convert file to base64 (with HEIC conversion if needed)
       const base64 = await processImageFile(uploadedFile)
+      
+      setIsConvertingHEIC(false)
       
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -181,6 +189,7 @@ export default function UploadPage() {
       alert('Generation failed. Please try again.')
     } finally {
       setIsProcessing(false)
+      setIsConvertingHEIC(false)
     }
   }
 
@@ -847,10 +856,13 @@ export default function UploadPage() {
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    AI is placing your artwork...
+                    {isConvertingHEIC ? 'Converting HEIC to JPG...' : 'AI is placing your artwork...'}
                   </h3>
                   <p className="text-gray-600">
-                    This usually takes 20-30 seconds. We're creating a realistic visualization of your artwork in the selected environment.
+                    {isConvertingHEIC 
+                      ? 'Converting your iPhone photo to a compatible format. This reduces file size and ensures compatibility.'
+                      : 'This usually takes 20-30 seconds. We\'re creating a realistic visualization of your artwork in the selected environment.'
+                    }
                   </p>
                 </div>
               </div>
