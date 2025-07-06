@@ -22,14 +22,7 @@ export async function POST(request: NextRequest) {
       customer_email: email,
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'Artwork Context - 10 Generations',
-              description: 'Generate 10 AI-powered artwork placements in different environments',
-            },
-            unit_amount: 500, // $5.00 in cents
-          },
+          price: process.env.STRIPE_PRICE_ID!,
           quantity: 1,
         },
       ],
