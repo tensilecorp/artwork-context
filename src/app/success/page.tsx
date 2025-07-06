@@ -97,12 +97,18 @@ function SuccessContent() {
           </div>
 
           {/* Success Message */}
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">✅ Your Professional Mockup Is Ready</h1>
-          <p className="text-gray-600 mb-4">
-            You just saved hours of editing and hundreds in photography fees.
-          </p>
-          <p className="text-gray-800 font-medium mb-6">
-            This is your artwork — presented clearly, professionally, and at scale.
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful! 🎉</h1>
+          <p className="text-gray-600 mb-6">
+            {hasExistingUpload ? (
+              <>
+                Perfect! Your artwork and preferences are saved. You now have{' '}
+                <span className="font-semibold text-indigo-600">10 credits</span> to generate placements.
+              </>
+            ) : (
+              <>
+                You now have <span className="font-semibold text-indigo-600">10 credits</span> to generate artwork placements.
+              </>
+            )}
           </p>
 
           {/* Session Info for returning users */}
@@ -139,28 +145,10 @@ function SuccessContent() {
           {/* CTA Button */}
           <Link 
             href="/upload"
-            className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors inline-block mb-4"
+            className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors inline-block"
           >
-            💾 {hasExistingUpload ? 'Download High-Res Mockup' : 'Start Creating →'}
+            {hasExistingUpload ? 'Continue Creating →' : 'Start Creating →'}
           </Link>
-
-          {/* Quality Info */}
-          <p className="text-sm text-gray-600 mb-4">
-            AI-enhanced resolution. Print-ready. Yours to use anywhere.
-          </p>
-
-          {/* Social Mention */}
-          <p className="text-sm text-gray-600 mb-4">
-            💬 Love the result? Tag @artviewpro — we'd love to feature it.
-          </p>
-
-          {/* Rating Section */}
-          <div className="mb-4">
-            <div className="flex justify-center items-center mb-2">
-              <span className="text-2xl">⭐⭐⭐⭐⭐</span>
-            </div>
-            <p className="text-sm text-gray-600">Rate your experience</p>
-          </div>
 
           {/* Additional Info */}
           <p className="text-xs text-gray-500 mt-4">

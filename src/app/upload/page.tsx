@@ -1122,8 +1122,8 @@ export default function UploadPage() {
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
               <div className="flex items-center">
-                <Sparkles className="w-6 h-6 text-indigo-600 mr-2" />
-                <h2 className="text-xl font-bold text-gray-900">High-Resolution Result</h2>
+                <CheckCircle className="w-6 h-6 text-green-600 mr-2" />
+                <h2 className="text-xl font-bold text-gray-900">✅ Your Professional Mockup Is Ready</h2>
               </div>
               <button
                 onClick={() => {
@@ -1138,6 +1138,16 @@ export default function UploadPage() {
               </button>
             </div>
 
+            {/* Value Message */}
+            <div className="px-6 py-4 bg-green-50 border-b border-green-100">
+              <p className="text-gray-700 mb-2">
+                You just saved hours of editing and hundreds in photography fees.
+              </p>
+              <p className="text-gray-800 font-medium">
+                This is your artwork — presented clearly, professionally, and at scale.
+              </p>
+            </div>
+
             {/* Main Image Display */}
             <div className="flex-1 flex items-center justify-center p-6 bg-white overflow-auto">
               <img
@@ -1149,15 +1159,35 @@ export default function UploadPage() {
 
             {/* Bottom Controls */}
             <div className="flex-shrink-0 p-4 bg-white border-t border-gray-200">
+              {/* Download Button */}
               <div className="text-center mb-4">
-                <p className="text-sm text-gray-600">
-                  <span className="font-semibold text-indigo-600">2x Enhanced Resolution</span> • Perfect for printing and professional use
+                <button
+                  onClick={downloadHighRes}
+                  className="bg-blue-600 text-white py-3 px-8 rounded-lg font-semibold hover:bg-blue-700 flex items-center mx-auto mb-3"
+                >
+                  💾 <Download className="w-4 h-4 mx-2" />
+                  Download High-Res Mockup
+                </button>
+                <p className="text-sm text-gray-600 mb-4">
+                  AI-enhanced resolution. Print-ready. Yours to use anywhere.
                 </p>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm font-medium text-gray-700">Rate this:</span>
+              {/* Social Mention */}
+              <div className="text-center mb-4">
+                <p className="text-sm text-gray-600">
+                  💬 Love the result? Tag @artviewpro — we'd love to feature it.
+                </p>
+              </div>
+
+              {/* Rating Section */}
+              <div className="text-center">
+                <div className="flex justify-center items-center mb-2">
+                  <span className="text-2xl">⭐⭐⭐⭐⭐</span>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">Rate your experience</p>
+                
+                <div className="flex justify-center items-center space-x-3">
                   <div className="flex">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -1182,14 +1212,6 @@ export default function UploadPage() {
                     </button>
                   )}
                 </div>
-
-                <button
-                  onClick={downloadHighRes}
-                  className="bg-blue-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-blue-700 flex items-center"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download
-                </button>
               </div>
 
               {showFeedbackForm && userRating && userRating >= 4 && (
