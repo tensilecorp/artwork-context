@@ -12,70 +12,28 @@ export const metadata: Metadata = {
 export default function ExamplesPage() {
   const examples = [
     {
-      category: "Living Room",
-      description: "Modern, elegant living spaces",
-      examples: [
-        {
-          original: "/artwork1.jpg",
-          placed: "/artwork-in-living-room.jpg",
-          title: "Contemporary Abstract in Living Room",
-          description: "Modern art styled in a clean, residential interior"
-        },
-        {
-          original: "/artwork2.jpg", 
-          placed: "/scenes/artwork-in-living-room-upscaled-2 Medium.jpeg",
-          title: "Classic Painting in Modern Living Room",
-          description: "Traditional artwork placed in a modern living room setting"
-        }
-      ]
+      original: "/front-gallery-original-01.jpeg",
+      placed: "/front-gallery-result-01-living.jpeg",
+      title: "Contemporary Artwork in Living Room",
+      description: "Modern artwork perfectly placed in an elegant living room setting"
     },
     {
-      category: "Gallery",
-      description: "Professional gallery environments",
-      examples: [
-        {
-          original: "/artwork2.jpg",
-          placed: "/artwork-in-gallery-3.jpg",
-          title: "Gallery Wall Display",
-          description: "Exhibition-style mockup in a neutral-toned gallery"
-        },
-        {
-          original: "/artwork3.jpg",
-          placed: "/scenes/replicate-prediction-epewxcww89rmc0cqv6qre5r5rr Medium.jpeg",
-          title: "Contemporary Gallery Space",
-          description: "Clean, minimalist setting for modern and abstract work"
-        }
-      ]
+      original: "/front-gallery-original-01.jpeg",
+      placed: "/front-gallery-result-01-gallery.jpeg",
+      title: "Gallery Wall Display",
+      description: "Professional gallery presentation with perfect lighting and spacing"
     },
     {
-      category: "Office",
-      description: "Workplace and corporate interiors",
-      examples: [
-        {
-          original: "/artwork3.jpg",
-          placed: "/artwork-in-office.jpg",
-          title: "Corporate Office Display",
-          description: "Artwork shown in a sleek, contemporary office lobby"
-        },
-        {
-          original: "/artwork1.jpg",
-          placed: "/scenes/artwork-in-office-upscaled Medium.jpeg",
-          title: "Executive Office Setting",
-          description: "Sophisticated environment suited for framed or large-format work"
-        }
-      ]
+      original: "/front-gallery-original-02.jpeg",
+      placed: "/front-gallery-result-02-office.jpeg",
+      title: "Corporate Office Display",
+      description: "Sophisticated artwork placement in a modern office environment"
     },
     {
-      category: "Hotel Lobby",
-      description: "Luxury hospitality environments",
-      examples: [
-        {
-          original: "/artwork2.jpg",
-          placed: "/scenes/artwork-in-hotel-lobby Medium.jpeg",
-          title: "Luxury Hotel Entrance",
-          description: "Large-format artwork placed in a premium hotel lobby setting"
-        }
-      ]
+      original: "/front-gallery-original-02.jpeg",
+      placed: "/front-gallery-result-02-gallery.jpeg",
+      title: "Modern Gallery Space",
+      description: "Clean, minimalist gallery setting showcasing contemporary art"
     }
   ]
 
@@ -111,57 +69,48 @@ export default function ExamplesPage() {
           </p>
         </div>
 
-        {/* Examples by Category */}
-        {examples.map((category, categoryIndex) => (
-          <div key={categoryIndex} className="mb-20">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">{category.category}</h2>
-              <p className="text-lg text-gray-600">{category.description}</p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              {category.examples.map((example, exampleIndex) => (
-                <div key={exampleIndex} className="bg-white rounded-xl shadow-lg overflow-hidden">
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{example.title}</h3>
-                    <p className="text-gray-600 mb-6">{example.description}</p>
-                    
-                    {/* Gallery-style Layout with smaller original */}
-                    <div className="relative">
-                      {/* Main Result Image */}
-                      <div className="relative aspect-[4/3] mb-4">
-                        <Image
-                          src={example.placed}
-                          alt="Artwork placed in environment"
-                          fill
-                          className="object-cover rounded-lg shadow-md"
-                        />
-                        {/* Small Original Thumbnail - Front Page Gallery Style */}
-                        <div className="absolute top-3 left-3 bg-white p-1 rounded-md border border-black/10 shadow-lg w-16 h-16 transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                          <Image
-                            src={example.original}
-                            alt="Original artwork"
-                            fill
-                            className="object-cover rounded"
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* Labels */}
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-500">Original → Professional Visualization</span>
-                        <div className="flex items-center text-blue-600">
-                          <Sparkles className="w-4 h-4 mr-1" />
-                          <span className="font-medium">AI Enhanced</span>
-                        </div>
-                      </div>
+        {/* Examples Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
+          {examples.map((example, exampleIndex) => (
+            <div key={exampleIndex} className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="p-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">{example.title}</h3>
+                <p className="text-gray-600 mb-6">{example.description}</p>
+                
+                {/* Gallery-style Layout with smaller original */}
+                <div className="relative">
+                  {/* Main Result Image */}
+                  <div className="relative aspect-[4/3] mb-4">
+                    <Image
+                      src={example.placed}
+                      alt="Artwork placed in environment"
+                      fill
+                      className="object-cover rounded-lg shadow-md"
+                    />
+                    {/* Small Original Thumbnail - Front Page Gallery Style */}
+                    <div className="absolute top-3 left-3 bg-white p-1 rounded-md border border-black/10 shadow-lg w-16 h-16 transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                      <Image
+                        src={example.original}
+                        alt="Original artwork"
+                        fill
+                        className="object-cover rounded"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Labels */}
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-500">Original → Professional Visualization</span>
+                    <div className="flex items-center text-blue-600">
+                      <Sparkles className="w-4 h-4 mr-1" />
+                      <span className="font-medium">AI Enhanced</span>
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
 
         {/* Enhanced CTA Section */}
         <div className="bg-blue-50 rounded-2xl p-12 text-center">

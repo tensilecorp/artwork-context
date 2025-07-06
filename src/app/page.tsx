@@ -103,14 +103,14 @@ export default function Home() {
 
         {/* Animated Slideshow */}
         <div className="relative overflow-hidden px-2 mt-8 py-4">
-          <div className="flex flex-row gap-2 animate-infinite-scroll justify-center">
-            {/* Real artwork placement examples */}
+          <div className="flex flex-row gap-2 justify-center">
+            {/* Real artwork placement examples - 4 items only */}
             <div className="flex-shrink-0 relative group rounded-md">
-              <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[32px] h-[32px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[64px] group-hover:h-[64px] transition-all duration-300 z-20" style={{transform: 'rotate(8deg)'}}>
-                <Image src="/artwork1.jpg" alt="Original artwork" width={64} height={64} className="w-full h-full object-cover rounded" />
+              <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[40px] h-[40px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[80px] group-hover:h-[80px] transition-all duration-300 z-20" style={{transform: 'rotate(8deg)'}}>
+                <Image src="/front-gallery-original-01.jpeg" alt="Original artwork" width={80} height={80} className="w-full h-full object-cover rounded" />
               </div>
-              <div className="w-[180px] h-[170px] rounded-md overflow-hidden">
-                <Image src="/artwork-in-living-room.jpg" alt="Artwork in living room" width={180} height={170} className="w-full h-full object-cover" />
+              <div className="w-[225px] h-[212px] rounded-md overflow-hidden">
+                <Image src="/front-gallery-result-01-living.jpeg" alt="Artwork in living room" width={225} height={212} className="w-full h-full object-cover" />
               </div>
               <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex absolute inset-0 bg-gradient-to-t rounded-md from-black/80 to-transparent z-10 items-end justify-center cursor-pointer">
                 <div className="w-full h-10 flex items-center justify-center text-center">
@@ -120,11 +120,11 @@ export default function Home() {
             </div>
 
             <div className="flex-shrink-0 relative group rounded-md">
-              <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[32px] h-[32px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[64px] group-hover:h-[64px] transition-all duration-300 z-20" style={{transform: 'rotate(0deg)'}}>
-                <Image src="/artwork2.jpg" alt="Original artwork" width={64} height={64} className="w-full h-full object-cover rounded" />
+              <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[40px] h-[40px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[80px] group-hover:h-[80px] transition-all duration-300 z-20" style={{transform: 'rotate(0deg)'}}>
+                <Image src="/front-gallery-original-01.jpeg" alt="Original artwork" width={80} height={80} className="w-full h-full object-cover rounded" />
               </div>
-              <div className="w-[180px] h-[170px] rounded-md overflow-hidden">
-                <Image src="/artwork-in-gallery-3.jpg" alt="Artwork in gallery" width={180} height={170} className="w-full h-full object-cover" />
+              <div className="w-[225px] h-[212px] rounded-md overflow-hidden">
+                <Image src="/front-gallery-result-01-gallery.jpeg" alt="Artwork in gallery" width={225} height={212} className="w-full h-full object-cover" />
               </div>
               <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex absolute inset-0 bg-gradient-to-t rounded-md from-black/80 to-transparent z-10 items-end justify-center cursor-pointer">
                 <div className="w-full h-10 flex items-center justify-center text-center">
@@ -134,11 +134,11 @@ export default function Home() {
             </div>
 
             <div className="flex-shrink-0 relative group rounded-md">
-              <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[32px] h-[32px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[64px] group-hover:h-[64px] transition-all duration-300 z-20" style={{transform: 'rotate(-2deg)'}}>
-                <Image src="/artwork3.jpg" alt="Original artwork" width={64} height={64} className="w-full h-full object-cover rounded" />
+              <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[40px] h-[40px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[80px] group-hover:h-[80px] transition-all duration-300 z-20" style={{transform: 'rotate(-2deg)'}}>
+                <Image src="/front-gallery-original-02.jpeg" alt="Original artwork" width={80} height={80} className="w-full h-full object-cover rounded" />
               </div>
-              <div className="w-[180px] h-[170px] rounded-md overflow-hidden">
-                <Image src="/artwork-in-office.jpg" alt="Artwork in office" width={180} height={170} className="w-full h-full object-cover" />
+              <div className="w-[225px] h-[212px] rounded-md overflow-hidden">
+                <Image src="/front-gallery-result-02-office.jpeg" alt="Artwork in office" width={225} height={212} className="w-full h-full object-cover" />
               </div>
               <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex absolute inset-0 bg-gradient-to-t rounded-md from-black/80 to-transparent z-10 items-end justify-center cursor-pointer">
                 <div className="w-full h-10 flex items-center justify-center text-center">
@@ -148,58 +148,15 @@ export default function Home() {
             </div>
 
             <div className="flex-shrink-0 relative group rounded-md">
-              <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[32px] h-[32px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[64px] group-hover:h-[64px] transition-all duration-300 z-20" style={{transform: 'rotate(5deg)'}}>
-                <Image src="/artwork1.jpg" alt="Original artwork" width={64} height={64} className="w-full h-full object-cover rounded" />
+              <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[40px] h-[40px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[80px] group-hover:h-[80px] transition-all duration-300 z-20" style={{transform: 'rotate(5deg)'}}>
+                <Image src="/front-gallery-original-02.jpeg" alt="Original artwork" width={80} height={80} className="w-full h-full object-cover rounded" />
               </div>
-              <div className="w-[180px] h-[170px] rounded-md overflow-hidden">
-                <Image src="/artwork-in-gallery-6.jpg" alt="Artwork in gallery" width={180} height={170} className="w-full h-full object-cover" />
+              <div className="w-[225px] h-[212px] rounded-md overflow-hidden">
+                <Image src="/front-gallery-result-02-gallery.jpeg" alt="Artwork in gallery" width={225} height={212} className="w-full h-full object-cover" />
               </div>
               <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex absolute inset-0 bg-gradient-to-t rounded-md from-black/80 to-transparent z-10 items-end justify-center cursor-pointer">
                 <div className="w-full h-10 flex items-center justify-center text-center">
                   <span className="text-white text-sm opacity-0 group-hover:opacity-100 transition-all duration-400">Modern Gallery</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex-shrink-0 relative group rounded-md">
-              <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[32px] h-[32px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[64px] group-hover:h-[64px] transition-all duration-300 z-20" style={{transform: 'rotate(-1deg)'}}>
-                <Image src="/artwork2.jpg" alt="Original artwork" width={64} height={64} className="w-full h-full object-cover rounded" />
-              </div>
-              <div className="w-[180px] h-[170px] rounded-md overflow-hidden">
-                <Image src="/artwork-in-custom.jpg" alt="Artwork in custom space" width={180} height={170} className="w-full h-full object-cover" />
-              </div>
-              <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex absolute inset-0 bg-gradient-to-t rounded-md from-black/80 to-transparent z-10 items-end justify-center cursor-pointer">
-                <div className="w-full h-10 flex items-center justify-center text-center">
-                  <span className="text-white text-sm opacity-0 group-hover:opacity-100 transition-all duration-400">Custom Space</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Duplicate the items for seamless loop */}
-            <div className="flex-shrink-0 relative group rounded-md">
-              <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[32px] h-[32px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[64px] group-hover:h-[64px] transition-all duration-300 z-20" style={{transform: 'rotate(8deg)'}}>
-                <Image src="/artwork1.jpg" alt="Original artwork" width={64} height={64} className="w-full h-full object-cover rounded" />
-              </div>
-              <div className="w-[180px] h-[170px] rounded-md overflow-hidden">
-                <Image src="/artwork-in-living-room.jpg" alt="Artwork in living room" width={180} height={170} className="w-full h-full object-cover" />
-              </div>
-              <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex absolute inset-0 bg-gradient-to-t rounded-md from-black/80 to-transparent z-10 items-end justify-center cursor-pointer">
-                <div className="w-full h-10 flex items-center justify-center text-center">
-                  <span className="text-white text-sm opacity-0 group-hover:opacity-100 transition-all duration-400">Living Room</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex-shrink-0 relative group rounded-md">
-              <div className="bg-white p-0.5 rounded-md border border-black/5 shadow-xl w-[32px] h-[32px] opacity-90 group-hover:opacity-100 object-cover top-[-8px] left-2 absolute group-hover:w-[64px] group-hover:h-[64px] transition-all duration-300 z-20" style={{transform: 'rotate(0deg)'}}>
-                <Image src="/artwork2.jpg" alt="Original artwork" width={64} height={64} className="w-full h-full object-cover rounded" />
-              </div>
-              <div className="w-[180px] h-[170px] rounded-md overflow-hidden">
-                <Image src="/artwork-in-gallery-3.jpg" alt="Artwork in gallery" width={180} height={170} className="w-full h-full object-cover" />
-              </div>
-              <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 flex absolute inset-0 bg-gradient-to-t rounded-md from-black/80 to-transparent z-10 items-end justify-center cursor-pointer">
-                <div className="w-full h-10 flex items-center justify-center text-center">
-                  <span className="text-white text-sm opacity-0 group-hover:opacity-100 transition-all duration-400">Gallery Wall</span>
                 </div>
               </div>
             </div>
@@ -331,7 +288,7 @@ export default function Home() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-lg font-bold leading-none text-gray-900">
-                      3. Download high-res mockups
+                      3. Download high-res visualisations
                       <span className="font-normal hidden md:inline-flex ml-1">(30 seconds)</span>
                     </p>
                     <p className="mt-1 text-base font-normal text-gray-600">
