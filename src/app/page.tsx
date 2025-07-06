@@ -79,11 +79,11 @@ export default function Home() {
             </div>
 
             <h2 className="mt-3 text-balance text-2xl font-bold leading-tight tracking-tight text-gray-900 sm:mt-6 sm:text-4xl xl:text-[42px]">
-              Professional artwork mockups — no studio required
+              AI-powered artwork visualization — no studio required
             </h2>
             
             <h1 className="text-xs font-bold text-gray-700 sm:text-sm lg:text-base mt-4">
-              The #1 AI tool to visualize your art in real spaces
+              The #1 AI art gallery mockup tool for artists and galleries
             </h1>
             
             <p className="mt-3 text-base font-medium text-gray-600 sm:text-lg">

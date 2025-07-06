@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ArtView Pro – Instantly Visualize Your Artwork in Real Spaces",
-  description: "Professional artwork mockups in 30 seconds. Upload your art and see it perfectly placed in living rooms, galleries, offices, and more. No studio required.",
-  keywords: "AI art placement, artwork visualization, art mockups, painting placement, sculpture display, art gallery, interior design, professional art photography",
+  title: "ArtView Pro – AI Art Gallery Mockup & Visualization Tool",
+  description: "AI-powered artwork visualization in 30 seconds. Create professional art gallery mockups and see your paintings perfectly placed in real spaces. No studio required.",
+  keywords: "AI art gallery mockup, AI art visualization, artwork placement, art mockups, painting placement, sculpture display, gallery visualization, interior design",
   authors: [{ name: "ArtView Pro" }],
   icons: {
     icon: [
@@ -29,16 +29,16 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "ArtView Pro – Instantly Visualize Your Artwork in Real Spaces",
-    description: "Professional artwork mockups in 30 seconds. Upload your art and see it perfectly placed in living rooms, galleries, offices, and more. No studio required.",
+    title: "ArtView Pro – AI Art Gallery Mockup & Visualization Tool",
+    description: "AI-powered artwork visualization in 30 seconds. Create professional art gallery mockups and see your paintings perfectly placed in real spaces. No studio required.",
     type: "website",
     locale: "en_US",
     siteName: "ArtView Pro",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ArtView Pro – Instantly Visualize Your Artwork in Real Spaces",
-    description: "Professional artwork mockups in 30 seconds. Upload your art and see it perfectly placed in living rooms, galleries, offices, and more. No studio required.",
+    title: "ArtView Pro – AI Art Gallery Mockup & Visualization Tool",
+    description: "AI-powered artwork visualization in 30 seconds. Create professional art gallery mockups and see your paintings perfectly placed in real spaces. No studio required.",
   },
   robots: {
     index: true,

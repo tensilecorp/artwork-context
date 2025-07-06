@@ -1,6 +1,13 @@
 import { ArrowLeft, Sparkles } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "AI Art Gallery Mockup Examples - ArtView Pro",
+  description: "See real AI art visualization examples. Professional gallery mockups, living room placements, and office displays created in 30 seconds.",
+  keywords: "AI art gallery mockup examples, art visualization samples, artwork placement examples, gallery mockup showcase",
+}
 
 export default function ExamplesPage() {
   const examples = [
@@ -97,10 +104,10 @@ export default function ExamplesPage() {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Professional Artwork Visualizations
+            AI Art Gallery Mockup Examples
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            See how ArtView Pro transforms your artwork into high-quality visualizations, placed in real-world environments — from homes and offices to galleries and more.
+            See how ArtView Pro's AI transforms your artwork into professional gallery mockups and visualizations, placed in real-world environments — from homes and offices to galleries and more.
           </p>
         </div>
 
