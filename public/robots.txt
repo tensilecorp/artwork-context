@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Important pages
+Allow: /upload
+Allow: /examples
+Allow: /contact
+Allow: /disclaimer
+
+# Block admin/api routes
+Disallow: /api/
+Disallow: /success
+
+# Sitemap location
+Sitemap: https://artviewpro.com/sitemap.xml

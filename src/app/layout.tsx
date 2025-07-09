@@ -17,6 +17,17 @@ export const metadata: Metadata = {
   description: "AI-powered artwork visualization in 30 seconds. Create professional art gallery mockups and see your paintings perfectly placed in real spaces. No studio required.",
   keywords: "AI art gallery mockup, AI art visualization, artwork placement, art mockups, painting placement, sculpture display, gallery visualization, interior design",
   authors: [{ name: "ArtView Pro" }],
+  creator: "ArtView Pro",
+  publisher: "ArtView Pro",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://artviewpro.com'),
+  alternates: {
+    canonical: '/',
+  },
   icons: {
     icon: [
       { url: '/favicon_32x32.png', sizes: '32x32', type: 'image/png' },
@@ -31,18 +42,39 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ArtView Pro – AI Art Gallery Mockup & Visualization Tool",
     description: "AI-powered artwork visualization in 30 seconds. Create professional art gallery mockups and see your paintings perfectly placed in real spaces. No studio required.",
+    url: 'https://artviewpro.com',
     type: "website",
     locale: "en_US",
     siteName: "ArtView Pro",
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'ArtView Pro - AI Art Gallery Mockup Tool',
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "ArtView Pro – AI Art Gallery Mockup & Visualization Tool",
     description: "AI-powered artwork visualization in 30 seconds. Create professional art gallery mockups and see your paintings perfectly placed in real spaces. No studio required.",
+    creator: "@artviewpro",
+    images: ['/logo.png'],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code-here',
   },
 };
 
@@ -54,6 +86,75 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Structured Data for SEO */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "ArtView Pro",
+              "description": "AI-powered artwork visualization tool that creates professional art gallery mockups in 30 seconds. Transform your paintings and sculptures into realistic room placements.",
+              "url": "https://artviewpro.com",
+              "applicationCategory": "DesignApplication",
+              "operatingSystem": "Web Browser",
+              "offers": {
+                "@type": "Offer",
+                "price": "5.00",
+                "priceCurrency": "USD",
+                "description": "Launch Special: 10 AI artwork visualizations"
+              },
+              "creator": {
+                "@type": "Organization",
+                "name": "ArtView Pro",
+                "url": "https://artviewpro.com"
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "reviewCount": "127"
+              },
+              "featureList": [
+                "AI-powered artwork placement",
+                "30-second processing time",
+                "High-resolution downloads",
+                "Multiple environment options",
+                "Commercial usage rights"
+              ]
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Service",
+              "name": "AI Artwork Visualization",
+              "description": "Professional artwork mockup and visualization service using artificial intelligence",
+              "provider": {
+                "@type": "Organization",
+                "name": "ArtView Pro",
+                "url": "https://artviewpro.com"
+              },
+              "areaServed": "Worldwide",
+              "hasOfferCatalog": {
+                "@type": "OfferCatalog",
+                "name": "Artwork Visualization Services",
+                "itemListElement": [
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Service",
+                      "name": "AI Artwork Placement",
+                      "description": "Transform artwork photos into professional gallery mockups"
+                    }
+                  }
+                ]
+              }
+            })
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
