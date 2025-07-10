@@ -7,9 +7,11 @@ Allow: /examples
 Allow: /contact
 Allow: /disclaimer
 
-# Block admin/api routes
-Disallow: /api/
+# Block specific API routes (but allow sitemap)
+Disallow: /api/analyze
+Disallow: /api/checkout
+Disallow: /api/upscale
 Disallow: /success
 
 # Sitemap location
-Sitemap: https://artviewpro.com/sitemap.xml
+Sitemap: https://artviewpro.com/api/sitemap.xml
