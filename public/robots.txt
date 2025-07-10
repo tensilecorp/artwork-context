@@ -14,4 +14,4 @@ Disallow: /api/upscale
 Disallow: /success
 
 # Sitemap location
-Sitemap: https://artviewpro.com/api/sitemap.xml
+Sitemap: https://www.artviewpro.com/api/sitemap.xml
