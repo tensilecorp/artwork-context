@@ -161,7 +161,6 @@ export function useFreeTrialPopup() {
     
     if (hasSeenPopup || hasAccount || hasShown) return
 
-    let timeoutId: NodeJS.Timeout
     let scrollTriggered = false
 
     // Time-based trigger (15 seconds)
@@ -187,7 +186,7 @@ export function useFreeTrialPopup() {
     }
 
     // Set up triggers
-    timeoutId = setTimeout(timeBasedTrigger, 15000) // 15 seconds
+    const timeoutId = setTimeout(timeBasedTrigger, 15000) // 15 seconds
     window.addEventListener('scroll', scrollBasedTrigger)
 
     return () => {
