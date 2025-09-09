@@ -605,6 +605,44 @@ export default function Home() {
         onSubmit={handleEmailSubmit}
       />
 
+      {/* Free Trial CTA Section */}
+      <section className="bg-gradient-to-r from-blue-600 to-purple-600 py-12">
+        <div className="max-w-screen-xl px-4 mx-auto sm:px-6 lg:px-8 2xl:px-0">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Ready to Transform Your Artwork?
+            </h2>
+            <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+              Join thousands of artists who've already discovered the power of AI-powered gallery mockups
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button
+                onClick={() => {
+                  // Trigger the free trial popup
+                  localStorage.removeItem('artview-popup-shown')
+                  window.location.reload()
+                }}
+                className="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg flex items-center"
+              >
+                <Sparkles className="w-5 h-5 mr-2" />
+                Start Free Trial - 3 Gallery Mockups
+              </button>
+              
+              <div className="text-white text-sm">
+                <p>✨ No credit card required</p>
+                <p>🚀 Results in 30 seconds</p>
+                <p>💎 Museum-grade quality</p>
+              </div>
+            </div>
+            
+            <p className="text-blue-200 text-sm mt-6">
+              Over 5,000+ professional mockups created this month
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="py-12 bg-zinc-900 sm:py-16 lg:pt-20">
         <div className="max-w-screen-xl px-4 mx-auto sm:px-6 lg:px-8 2xl:px-0">

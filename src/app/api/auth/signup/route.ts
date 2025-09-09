@@ -30,15 +30,22 @@ async function loadUsers(): Promise<User[]> {
     await ensureDataDir()
     const data = await fs.readFile(USERS_FILE, 'utf-8')
     return JSON.parse(data)
-  } catch {
+  } catch (error) {
+    console.log('No existing users file, starting fresh:', error)
     return []
   }
 }
 
 // Save users to file
 async function saveUsers(users: User[]) {
-  await ensureDataDir()
-  await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2))
+  try {
+    await ensureDataDir()
+    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2))
+    console.log('Users saved successfully')
+  } catch (error) {
+    console.error('Error saving users:', error)
+    throw error
+  }
 }
 
 // Generate simple ID
