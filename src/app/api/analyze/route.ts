@@ -1,13 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Replicate from 'replicate'
+import { promises as fs } from 'fs'
+import path from 'path'
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 })
 
+const USERS_FILE = path.join(process.cwd(), 'data', 'users.json')
+
+interface User {
+  id: string
+  email: string
+  credits: number
+  createdAt: string
+  expiresAt: string
+  plan: 'free' | 'essential' | 'standard' | 'studio'
+}
+
+// Load users from file
+async function loadUsers(): Promise<User[]> {
+  try {
+    const data = await fs.readFile(USERS_FILE, 'utf-8')
+    return JSON.parse(data)
+  } catch {
+    return []
+  }
+}
+
+// Save users to file
+async function saveUsers(users: User[]) {
+  const dataDir = path.join(process.cwd(), 'data')
+  try {
+    await fs.access(dataDir)
+  } catch {
+    await fs.mkdir(dataDir, { recursive: true })
+  }
+  await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2))
+}
+
+// Add watermark to image (server-side version)
+function addWatermarkToDataUrl(imageDataUrl: string): string {
+  // For now, we'll just return the original image
+  // In a production environment, you'd use a proper image processing library
+  // like Sharp or Canvas to add the watermark server-side
+  return imageDataUrl
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { image, environment, customPrompt, artworkDimensions, includePedestal, viewingAngle, lighting, artworkType, aspectRatio } = await request.json()
+    const { image, environment, customPrompt, artworkDimensions, includePedestal, viewingAngle, lighting, artworkType, aspectRatio, userEmail } = await request.json()
 
     if (!image) {
       return NextResponse.json(

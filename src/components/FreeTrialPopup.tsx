@@ -200,16 +200,37 @@ export function useFreeTrialPopup() {
   }
 
   const handleEmailSubmit = async (email: string) => {
-    // Store email and mark as having account
-    localStorage.setItem('artview-user-email', email)
-    localStorage.setItem('artview-free-credits', '3')
-    
-    // Here you would typically make an API call to create the user account
-    // For now, we'll just store it locally
-    console.log('Free trial signup:', email)
-    
-    // Redirect to upload page
-    window.location.href = '/upload?trial=true'
+    try {
+      // Call the signup API
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Store user data locally for quick access
+        localStorage.setItem('artview-user-email', email)
+        localStorage.setItem('artview-user-id', data.user.id)
+        localStorage.setItem('artview-user-credits', data.user.credits.toString())
+        localStorage.setItem('artview-user-plan', data.user.plan)
+        
+        console.log('Free trial signup successful:', data.message)
+        
+        // Redirect to upload page
+        window.location.href = '/upload?trial=true'
+      } else {
+        console.error('Signup failed:', data.error)
+        alert('Signup failed. Please try again.')
+      }
+    } catch (error) {
+      console.error('Signup error:', error)
+      alert('Something went wrong. Please try again.')
+    }
   }
 
   return {
