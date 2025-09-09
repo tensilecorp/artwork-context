@@ -218,14 +218,19 @@ export function useFreeTrialPopup() {
         localStorage.setItem('artview-user-id', data.user.id)
         localStorage.setItem('artview-user-credits', data.user.credits.toString())
         localStorage.setItem('artview-user-plan', data.user.plan)
+        localStorage.setItem('artview-user-expires', data.user.expiresAt)
+        
+        // Store full user object for easy access
+        localStorage.setItem('artview-user', JSON.stringify(data.user))
         
         console.log('Free trial signup successful:', data.message)
+        alert(`Success! ${data.message}`)
         
         // Redirect to upload page
         window.location.href = '/upload?trial=true'
       } else {
         console.error('Signup failed:', data.error)
-        alert('Signup failed. Please try again.')
+        alert(`Signup failed: ${data.error}. Please try again.`)
       }
     } catch (error) {
       console.error('Signup error:', error)

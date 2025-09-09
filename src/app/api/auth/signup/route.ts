@@ -1,9 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { promises as fs } from 'fs'
-import path from 'path'
-
-// Simple file-based user storage (can be upgraded to database later)
-const USERS_FILE = path.join(process.cwd(), 'data', 'users.json')
 
 interface User {
   id: string
@@ -12,40 +7,6 @@ interface User {
   createdAt: string
   expiresAt: string
   plan: 'free' | 'essential' | 'standard' | 'studio'
-}
-
-// Ensure data directory exists
-async function ensureDataDir() {
-  const dataDir = path.join(process.cwd(), 'data')
-  try {
-    await fs.access(dataDir)
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true })
-  }
-}
-
-// Load users from file
-async function loadUsers(): Promise<User[]> {
-  try {
-    await ensureDataDir()
-    const data = await fs.readFile(USERS_FILE, 'utf-8')
-    return JSON.parse(data)
-  } catch (error) {
-    console.log('No existing users file, starting fresh:', error)
-    return []
-  }
-}
-
-// Save users to file
-async function saveUsers(users: User[]) {
-  try {
-    await ensureDataDir()
-    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2))
-    console.log('Users saved successfully')
-  } catch (error) {
-    console.error('Error saving users:', error)
-    throw error
-  }
 }
 
 // Generate simple ID
@@ -57,33 +18,20 @@ export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json()
 
+    console.log('Signup request received for email:', email)
+
     if (!email || !email.includes('@')) {
+      console.log('Invalid email provided:', email)
       return NextResponse.json(
         { error: 'Valid email is required' },
         { status: 400 }
       )
     }
 
-    const users = await loadUsers()
+    // For now, we'll just create the user data and return it
+    // The client will store it in localStorage
+    // Later we can upgrade to a proper database
     
-    // Check if user already exists
-    const existingUser = users.find(user => user.email.toLowerCase() === email.toLowerCase())
-    
-    if (existingUser) {
-      // Return existing user data
-      return NextResponse.json({
-        success: true,
-        user: {
-          id: existingUser.id,
-          email: existingUser.email,
-          credits: existingUser.credits,
-          plan: existingUser.plan
-        },
-        message: 'Welcome back! Your free credits are still available.'
-      })
-    }
-
-    // Create new user with 3 free credits
     const newUser: User = {
       id: generateId(),
       email: email.toLowerCase(),
@@ -93,8 +41,7 @@ export async function POST(request: NextRequest) {
       plan: 'free'
     }
 
-    users.push(newUser)
-    await saveUsers(users)
+    console.log('Created new user:', newUser)
 
     return NextResponse.json({
       success: true,
@@ -102,7 +49,8 @@ export async function POST(request: NextRequest) {
         id: newUser.id,
         email: newUser.email,
         credits: newUser.credits,
-        plan: newUser.plan
+        plan: newUser.plan,
+        expiresAt: newUser.expiresAt
       },
       message: 'Account created! You have 3 free gallery mockups.'
     })
@@ -110,7 +58,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Signup error:', error)
     return NextResponse.json(
-      { error: 'Failed to create account' },
+      { error: 'Failed to create account', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
