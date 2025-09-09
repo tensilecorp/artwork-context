@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { X, Sparkles } from 'lucide-react'
 import Image from 'next/image'
+import Toast, { useToast } from './Toast'
 
 interface FreeTrialPopupProps {
   isOpen: boolean
@@ -13,6 +14,7 @@ interface FreeTrialPopupProps {
 export default function FreeTrialPopup({ isOpen, onClose, onSubmit }: FreeTrialPopupProps) {
   const [email, setEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { toast, showToast, hideToast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -224,17 +226,21 @@ export function useFreeTrialPopup() {
         localStorage.setItem('artview-user', JSON.stringify(data.user))
         
         console.log('Free trial signup successful:', data.message)
-        alert(`Success! ${data.message}`)
         
-        // Redirect to upload page
-        window.location.href = '/upload?trial=true'
+        // Show success toast and redirect after a short delay
+        setTimeout(() => {
+          window.location.href = '/upload?trial=true'
+        }, 1500)
+        
+        return { success: true, message: data.message }
       } else {
         console.error('Signup failed:', data.error)
-        alert(`Signup failed: ${data.error}. Please try again.`)
+        throw new Error(data.error || 'Signup failed')
       }
     } catch (error) {
       console.error('Signup error:', error)
-      alert('Something went wrong. Please try again.')
+      const message = error instanceof Error ? error.message : 'Something went wrong. Please try again.'
+      throw new Error(message)
     }
   }
 

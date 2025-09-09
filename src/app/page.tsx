@@ -4,9 +4,21 @@ import { Upload, Sparkles, Download, Star, Users, Clock, CheckCircle } from 'luc
 import Image from 'next/image'
 import Link from 'next/link'
 import FreeTrialPopup, { useFreeTrialPopup } from '@/components/FreeTrialPopup'
+import Toast, { useToast } from '@/components/Toast'
 
 export default function Home() {
   const { isOpen, closePopup, handleEmailSubmit } = useFreeTrialPopup()
+  const { toast, showToast, hideToast } = useToast()
+
+  const handleEmailSubmitWithToast = async (email: string) => {
+    try {
+      const result = await handleEmailSubmit(email)
+      showToast('🎉 Account created! You have 3 free gallery mockups. Redirecting...', 'success')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Something went wrong. Please try again.'
+      showToast(message, 'error')
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -602,7 +614,15 @@ export default function Home() {
       <FreeTrialPopup 
         isOpen={isOpen}
         onClose={closePopup}
-        onSubmit={handleEmailSubmit}
+        onSubmit={handleEmailSubmitWithToast}
+      />
+
+      {/* Toast Notifications */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
       />
 
       {/* Free Trial CTA Section */}

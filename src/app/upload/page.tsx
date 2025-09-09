@@ -135,8 +135,33 @@ export default function UploadPage() {
 
   // Initialize session and restore data on component mount
   useEffect(() => {
+    // Check for free trial user first (new system)
+    const freeTrialEmail = localStorage.getItem('artview-user-email')
+    const freeTrialCredits = localStorage.getItem('artview-user-credits')
+    const freeTrialExpires = localStorage.getItem('artview-user-expires')
+    
+    if (freeTrialEmail && freeTrialCredits && freeTrialExpires) {
+      const now = new Date()
+      const expiresAt = new Date(freeTrialExpires)
+      const creditsCount = parseInt(freeTrialCredits)
+      
+      if (now < expiresAt && creditsCount > 0) {
+        console.log('Free trial user detected:', freeTrialEmail, 'Credits:', creditsCount)
+        setEmail(freeTrialEmail)
+        setEmailSubmitted(true)
+        setCredits({
+          count: creditsCount,
+          purchaseDate: new Date().toISOString(),
+          sessionId: 'free-trial',
+          expiresAt: freeTrialExpires
+        })
+        setIsPaidUser(true)
+      }
+    }
+    
+    // Fallback to old session system
     const session = getSession()
-    if (session) {
+    if (session && !freeTrialEmail) {
       console.log('Restoring session data:', session.sessionId)
       
       if (session.email) {
@@ -156,26 +181,9 @@ export default function UploadPage() {
         }
       }
       
-      const savedFile = getUploadedFile()
-      if (savedFile) {
-        setUploadedFile(savedFile)
-        const url = URL.createObjectURL(savedFile)
-        setPreviewUrl(url)
-        console.log('Restored uploaded file:', savedFile.name)
-      }
-      
-      const preferences = getPreferences()
-      if (preferences.selectedEnvironment) setSelectedEnvironment(preferences.selectedEnvironment)
-      if (preferences.customPrompt) setCustomPrompt(preferences.customPrompt)
-      if (preferences.artworkDimensions) setArtworkDimensions(preferences.artworkDimensions)
-      if (preferences.includePedestal !== undefined) setIncludePedestal(preferences.includePedestal)
-      if (preferences.viewingAngle) setViewingAngle(preferences.viewingAngle)
-      if (preferences.selectedLighting) setSelectedLighting(preferences.selectedLighting)
-      if (preferences.artworkType) setArtworkType(preferences.artworkType)
-      if (preferences.aspectRatio) setAspectRatio(preferences.aspectRatio)
-      
       console.log('Session data restored successfully')
-    } else {
+    } else if (!freeTrialEmail) {
+      // Check old localStorage credits system
       const storedCredits = localStorage.getItem('artworkCredits')
       
       if (storedCredits) {
@@ -194,6 +202,25 @@ export default function UploadPage() {
         }
       }
     }
+    
+    // Restore file and preferences regardless of credit system
+    const savedFile = getUploadedFile()
+    if (savedFile) {
+      setUploadedFile(savedFile)
+      const url = URL.createObjectURL(savedFile)
+      setPreviewUrl(url)
+      console.log('Restored uploaded file:', savedFile.name)
+    }
+    
+    const preferences = getPreferences()
+    if (preferences.selectedEnvironment) setSelectedEnvironment(preferences.selectedEnvironment)
+    if (preferences.customPrompt) setCustomPrompt(preferences.customPrompt)
+    if (preferences.artworkDimensions) setArtworkDimensions(preferences.artworkDimensions)
+    if (preferences.includePedestal !== undefined) setIncludePedestal(preferences.includePedestal)
+    if (preferences.viewingAngle) setViewingAngle(preferences.viewingAngle)
+    if (preferences.selectedLighting) setSelectedLighting(preferences.selectedLighting)
+    if (preferences.artworkType) setArtworkType(preferences.artworkType)
+    if (preferences.aspectRatio) setAspectRatio(preferences.aspectRatio)
   }, [])
 
   // Save session data whenever key state changes
@@ -350,11 +377,21 @@ export default function UploadPage() {
       setPlacementResult(result)
       setCurrentStep(3) // Move to results step
 
+      // Update credits in both new and old systems
       const updatedCredits = {
         ...credits,
         count: credits.count - 1
       }
       setCredits(updatedCredits)
+      
+      // Update new localStorage system if it exists
+      const freeTrialCredits = localStorage.getItem('artview-user-credits')
+      if (freeTrialCredits) {
+        const newCount = Math.max(0, parseInt(freeTrialCredits) - 1)
+        localStorage.setItem('artview-user-credits', newCount.toString())
+      }
+      
+      // Update old system for backward compatibility
       localStorage.setItem('artworkCredits', JSON.stringify(updatedCredits))
 
     } catch (error) {
