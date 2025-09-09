@@ -1,8 +1,13 @@
+'use client'
+
 import { Upload, Sparkles, Download, Star, Users, Clock, CheckCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import FreeTrialPopup, { useFreeTrialPopup } from '@/components/FreeTrialPopup'
 
 export default function Home() {
+  const { isOpen, closePopup, handleEmailSubmit } = useFreeTrialPopup()
+
   return (
     <div className="min-h-screen bg-white">
       {/* Trust Bar */}
@@ -79,23 +84,22 @@ export default function Home() {
             </div>
 
             <h2 className="mt-3 text-balance text-2xl font-bold leading-tight tracking-tight text-gray-900 sm:mt-6 sm:text-4xl xl:text-[42px]">
-              AI-powered artwork visualization — no studio required
+              Museum‑Grade Artwork Visualization — In Seconds
             </h2>
             
             <h1 className="text-xs font-bold text-gray-700 sm:text-sm lg:text-base mt-4">
-              The #1 AI art gallery mockup tool for artists and galleries
+              Elevate your portfolio with gallery-quality mockups — no studio, no photographer, no fuss.
             </h1>
             
             <p className="mt-3 text-base font-medium text-gray-600 sm:text-lg">
-              Transform any artwork photo by placing it perfectly in real environments. 
-              See how your paintings and sculptures look in living rooms, offices, galleries, and more.
-              <strong className="ml-1">All we need is one photo of your artwork.</strong>
+              Upload your art. Choose a space. Download images that look as if they were professionally shot.
+              <strong className="ml-1">Exactly what galleries expect.</strong>
             </p>
 
             <div className="mt-6 flex flex-col md:flex-row gap-3 items-center justify-center">
               <Link href="/upload" className="inline-flex h-12 w-full md:w-auto items-center justify-center gap-1.5 rounded-lg border border-blue-600 bg-blue-500 px-6 pb-3.5 pt-2.5 text-lg font-bold leading-6 text-white shadow-[0_0px_24px_0px_rgba(0,0,0,0.25)] transition-all duration-150 hover:bg-opacity-90">
-                <span className="hidden md:inline-flex">Start Creating Now</span>
-                <span className="md:hidden">Start Creating Now</span>
+                <span className="hidden md:inline-flex">Create Gallery-Level Visuals Now</span>
+                <span className="md:hidden">Create Gallery-Level Visuals Now</span>
               </Link>
             </div>
           </div>
@@ -181,40 +185,40 @@ export default function Home() {
           <div className="gap-8 sm:flex sm:items-center sm:justify-center sm:gap-16 md:flex-row">
             <div>
               <h3 className="text-md font-bold text-gray-900 lg:text-lg">
-                All visualizations include:
+                Create gallery-level mockups:
               </h3>
               <ul className="mt-3 space-y-1 text-sm font-medium text-gray-900 md:space-y-2 xl:text-base">
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                  Done in 30 seconds or less
+                  Gallery-level mockups in under 30 seconds
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                  10x cheaper than photographers
+                  90% less expensive than hiring a photographer
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                  Multiple environments to choose from
+                  Curated environments — from white-cube galleries to luxe interiors
                 </li>
               </ul>
             </div>
             
             <div className="hidden sm:block">
               <h3 className="text-md font-bold text-gray-900 lg:text-lg">
-                Every package includes:
+                Professional results:
               </h3>
               <ul className="mt-3 space-y-1 text-sm font-medium text-gray-900 md:space-y-2 xl:text-base">
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                  Indistinguishable from real photos
+                  Realistic, high-res results — exactly what galleries expect
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                  High-resolution downloads
+                  Full commercial rights and print-ready files
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                  Commercial usage rights
+                  Museum-grade quality visualization
                 </li>
               </ul>
             </div>
@@ -456,11 +460,11 @@ export default function Home() {
             </div>
             
             <h2 className="mt-3 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl lg:text-[42px] lg:leading-[48px]">
-              Professional artwork visualization for 10x less than traditional photography
+              90% less expensive than hiring a photographer
             </h2>
             
             <p className="mt-3 text-base font-medium text-gray-600 sm:text-lg md:mx-auto md:max-w-2xl lg:text-lg">
-              The average cost of professional artwork photography is $250+. Get started for just $5.
+              Traditional photography typically starts at $250+ per shoot. Get museum-grade results for a fraction of the cost.
             </p>
           </div>
 
@@ -593,6 +597,13 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Free Trial Popup */}
+      <FreeTrialPopup 
+        isOpen={isOpen}
+        onClose={closePopup}
+        onSubmit={handleEmailSubmit}
+      />
 
       {/* Footer */}
       <footer className="py-12 bg-zinc-900 sm:py-16 lg:pt-20">
