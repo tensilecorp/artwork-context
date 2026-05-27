@@ -1,6 +1,13 @@
 import { ArrowLeft, Shield, Eye, AlertTriangle, Scale } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy & Legal Disclaimer – ArtView Pro',
+  description: 'ArtView Pro privacy policy, data protection practices, copyright guidelines, and legal disclaimer. Your artwork data is deleted within 7 days. GDPR compliant.',
+  alternates: { canonical: '/disclaimer' },
+}
 
 export default function DisclaimerPage() {
   return (
