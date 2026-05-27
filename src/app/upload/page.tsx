@@ -234,7 +234,7 @@ export default function UploadPage() {
     if (emailSubmitted) {
       updateSession({ email })
     }
-  }, [emailSubmitted])
+  }, [emailSubmitted, email])
 
   useEffect(() => {
     const preferences = {
@@ -699,10 +699,13 @@ export default function UploadPage() {
             ) : (
               <div className="space-y-6">
                 <div className="relative max-w-md mx-auto">
-                  <img
+                  <Image
                     src={previewUrl!}
                     alt="Uploaded artwork"
-                    className="w-full rounded-lg shadow-md"
+                    width={800}
+                    height={600}
+                    unoptimized
+                    className="w-full h-auto rounded-lg shadow-md"
                   />
                   <button
                     onClick={() => {
@@ -1054,10 +1057,13 @@ export default function UploadPage() {
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Original Artwork</h3>
-                <img
+                <Image
                   src={previewUrl!}
                   alt="Original artwork"
-                  className="w-full rounded-lg shadow-md"
+                  width={800}
+                  height={600}
+                  unoptimized
+                  className="w-full h-auto rounded-lg shadow-md"
                 />
               </div>
               
@@ -1065,10 +1071,13 @@ export default function UploadPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">
                   Placed in {environments.find(e => e.id === placementResult.environment)?.name}
                 </h3>
-                <img
+                <Image
                   src={placementResult.image_url}
                   alt="Artwork placed in environment"
-                  className="w-full rounded-lg shadow-md"
+                  width={800}
+                  height={600}
+                  unoptimized
+                  className="w-full h-auto rounded-lg shadow-md"
                 />
               </div>
             </div>
@@ -1187,9 +1196,12 @@ export default function UploadPage() {
 
             {/* Main Image Display */}
             <div className="flex-1 flex items-center justify-center p-6 bg-white overflow-auto">
-              <img
+              <Image
                 src={upscaledImageUrl}
                 alt="High resolution artwork"
+                width={1600}
+                height={1200}
+                unoptimized
                 className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
               />
             </div>
