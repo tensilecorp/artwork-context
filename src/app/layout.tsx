@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://artviewpro.com'),
+  metadataBase: new URL('https://www.artviewpro.com'),
   alternates: {
     canonical: '/',
   },
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ArtView Pro – AI Art Gallery Mockup & Visualization Tool",
     description: "AI-powered artwork visualization in 30 seconds. Create professional art gallery mockups and see your paintings perfectly placed in real spaces. No studio required.",
-    url: 'https://artviewpro.com',
+    url: 'https://www.artviewpro.com',
     type: "website",
     locale: "en_US",
     siteName: "ArtView Pro",
@@ -75,9 +75,6 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'your-google-verification-code-here',
-  },
 };
 
 export default function RootLayout({
@@ -97,7 +94,7 @@ export default function RootLayout({
               "@type": "SoftwareApplication",
               "name": "ArtView Pro",
               "description": "AI-powered artwork visualization tool that creates professional art gallery mockups in 30 seconds. Transform your paintings and sculptures into realistic room placements.",
-              "url": "https://artviewpro.com",
+              "url": "https://www.artviewpro.com",
               "applicationCategory": "DesignApplication",
               "operatingSystem": "Web Browser",
               "offers": {
@@ -109,7 +106,7 @@ export default function RootLayout({
               "creator": {
                 "@type": "Organization",
                 "name": "ArtView Pro",
-                "url": "https://artviewpro.com"
+                "url": "https://www.artviewpro.com"
               },
               "aggregateRating": {
                 "@type": "AggregateRating",
@@ -137,7 +134,7 @@ export default function RootLayout({
               "provider": {
                 "@type": "Organization",
                 "name": "ArtView Pro",
-                "url": "https://artviewpro.com"
+                "url": "https://www.artviewpro.com"
               },
               "areaServed": "Worldwide",
               "hasOfferCatalog": {
