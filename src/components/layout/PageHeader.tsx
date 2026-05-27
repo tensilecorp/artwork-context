@@ -50,10 +50,10 @@ export default function PageHeader({ showBack = false, rightSlot, children }: Pa
               rightSlot
             ) : (
               <Link
-                href="/upload"
+                href="/upload?trial=true"
                 className="inline-flex items-center gap-2 px-5 py-2.5 text-[12px] uppercase tracking-[0.15em] font-medium text-foreground border border-foreground hover:border-primary hover:text-primary transition-colors duration-300"
               >
-                Begin
+                Try Free
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             )}

@@ -1,9 +1,10 @@
 'use client'
 
-import { ArrowRight, Shield } from 'lucide-react'
+import { ArrowRight, Shield, ChevronDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 import { fade, slideUp } from '@/constants/animations'
 import FreeTrialPopup, { useFreeTrialPopup } from '@/components/FreeTrialPopup'
 import Toast, { useToast } from '@/components/Toast'
@@ -19,9 +20,76 @@ const beforeAfterPairs = [
   {
     before: "/front-gallery-original-02.jpeg",
     after: "/front-gallery-result-02-office.jpeg",
-    label: "Private Office",
+    label: "Corporate Office",
+  },
+  {
+    before: "/front-gallery-original-01.jpeg",
+    after: "/front-gallery-result-01-living.jpeg",
+    label: "Living Room",
+  },
+  {
+    before: "/front-gallery-original-02.jpeg",
+    after: "/front-gallery-result-02-gallery.jpeg",
+    label: "Modern Gallery",
   },
 ]
+
+const faqs = [
+  {
+    q: "Does it work for sculpture and 3D works?",
+    a: "Yes. Any artwork with a clear photo works well — paintings, prints, sculptures, ceramics, textile pieces, and mixed media all produce strong results. The AI reads the shape and scale from your photo automatically.",
+  },
+  {
+    q: "What if my photo isn't professionally taken?",
+    a: "A well-lit smartphone photo is all you need. Our AI handles perspective, scale, and lighting correction automatically. Avoid harsh shadows directly on the artwork surface for best results.",
+  },
+  {
+    q: "Can I use the visualizations commercially?",
+    a: "Yes — full commercial rights are included with every session. Use the images on your website, Instagram, in gallery submissions, client proposals, or for print sales. No attribution required.",
+  },
+  {
+    q: "What file formats do you accept?",
+    a: "JPEG, PNG, WebP, and HEIC (iPhone). Files up to 20 MB. For very large canvases, a cropped detail photo often produces cleaner results than a wide-angle shot.",
+  },
+  {
+    q: "How long does processing take?",
+    a: "Under 30 seconds for all 10 visualizations. You'll see a progress indicator while the AI works — no waiting around.",
+  },
+  {
+    q: "What happens to my artwork image after processing?",
+    a: "Original images are automatically deleted after 7 days. Generated visualizations are removed after 30 days. You can request immediate deletion at any time by contacting us. We're GDPR compliant and founded in the Netherlands.",
+  },
+]
+
+function FAQ() {
+  const [open, setOpen] = useState<number | null>(null)
+
+  return (
+    <div className="space-y-0 divide-y divide-border/40">
+      {faqs.map((faq, i) => (
+        <div key={i}>
+          <button
+            onClick={() => setOpen(open === i ? null : i)}
+            className="w-full flex items-center justify-between py-5 text-left group"
+          >
+            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200">
+              {faq.q}
+            </span>
+            {open === i
+              ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0 ml-4" />
+              : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0 ml-4" />
+            }
+          </button>
+          {open === i && (
+            <p className="pb-5 text-sm text-muted-foreground leading-relaxed max-w-2xl">
+              {faq.a}
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function Home() {
   const { isOpen, closePopup, handleEmailSubmit } = useFreeTrialPopup()
@@ -57,9 +125,9 @@ export default function Home() {
               >
                 Your artwork,
                 <br />
-                presented with
+                placed in galleries,
                 <br />
-                <em className="italic">museum precision.</em>
+                <em className="italic">homes, and offices.</em>
               </motion.h1>
 
               <motion.p
@@ -67,32 +135,34 @@ export default function Home() {
                 custom={1}
                 className="mt-6 text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed"
               >
-                AI-powered visualization that places your work in gallery-grade environments. Upload once, receive ten exhibition-ready images.
+                Upload your painting or sculpture and receive 10 professional placement visualizations in under 30 seconds. No studio. No Photoshop.
               </motion.p>
 
-              <motion.div variants={fade} custom={2} className="mt-6 flex flex-wrap items-center gap-5">
-                <span className="text-xs text-muted-foreground">Used by independent artists and galleries</span>
-                <span className="w-px h-4 bg-border hidden sm:block" />
-                <span className="text-xs text-muted-foreground hidden sm:flex items-center gap-1">
-                  <Shield className="w-3 h-3" />
-                  GDPR Compliant
-                </span>
-              </motion.div>
-
-              <motion.div variants={fade} custom={3} className="mt-8 flex items-center gap-8">
+              <motion.div variants={fade} custom={2} className="mt-8 flex flex-col sm:flex-row items-start gap-5">
                 <Link
-                  href="/upload"
-                  className="inline-flex items-center gap-3 text-[13px] uppercase tracking-[0.15em] font-medium text-foreground border-b border-foreground pb-1 hover:text-primary hover:border-primary transition-colors duration-300"
+                  href="/upload?trial=true"
+                  className="inline-flex items-center gap-3 text-[13px] uppercase tracking-[0.15em] font-medium text-foreground border-b-2 border-foreground pb-1 hover:text-primary hover:border-primary transition-colors duration-300"
                 >
-                  Upload Your Artwork
+                  Try 3 Free Visualizations
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
-                  href="/examples"
-                  className="text-[13px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors duration-300"
+                  href="/upload"
+                  className="text-[13px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors duration-300 mt-1"
                 >
-                  View Examples
+                  Get 10 for $5
                 </Link>
+              </motion.div>
+
+              <motion.div variants={fade} custom={3} className="mt-6 flex flex-wrap items-center gap-5">
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Shield className="w-3 h-3" />
+                  GDPR Compliant
+                </span>
+                <span className="w-px h-4 bg-border hidden sm:block" />
+                <span className="text-xs text-muted-foreground">14-day money-back guarantee</span>
+                <span className="w-px h-4 bg-border hidden sm:block" />
+                <span className="text-xs text-muted-foreground">No subscription</span>
               </motion.div>
             </motion.div>
 
@@ -105,7 +175,7 @@ export default function Home() {
               <div className="aspect-[3/4] lg:aspect-[4/5] overflow-hidden relative">
                 <Image
                   src="/front-gallery-result-01-gallery.jpeg"
-                  alt="Artwork displayed in a professional gallery setting"
+                  alt="Painting placed on gallery wall — AI visualization by ArtView Pro"
                   fill
                   className="object-cover"
                   priority
@@ -129,8 +199,11 @@ export default function Home() {
             viewport={{ once: true, margin: "-100px" }}
             variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
           >
-            <motion.p variants={fade} className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground mb-10">
+            <motion.p variants={fade} className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground mb-3">
               Before &amp; After
+            </motion.p>
+            <motion.p variants={fade} className="text-sm text-muted-foreground mb-10 max-w-md">
+              Real results — four environments, two artworks, one upload.
             </motion.p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14">
@@ -140,7 +213,7 @@ export default function Home() {
                     <div className="aspect-[3/4] overflow-hidden relative">
                       <Image
                         src={pair.before}
-                        alt={`Original artwork — ${pair.label}`}
+                        alt={`Original artwork before AI placement — ${pair.label}`}
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 50vw, 25vw"
@@ -149,7 +222,7 @@ export default function Home() {
                     <div className="aspect-[3/4] overflow-hidden relative">
                       <Image
                         src={pair.after}
-                        alt={`Visualization — ${pair.label}`}
+                        alt={`Artwork placed in ${pair.label} — AI gallery mockup by ArtView Pro`}
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 50vw, 25vw"
@@ -160,6 +233,45 @@ export default function Home() {
                     <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Original</span>
                     <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{pair.label}</span>
                   </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.div variants={fade} className="mt-12">
+              <Link
+                href="/examples"
+                className="text-[13px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors duration-300 inline-flex items-center gap-2"
+              >
+                See all environments
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Who it's for */}
+      <section className="border-t border-border/40 bg-muted/20">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-16 md:py-24">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
+          >
+            <motion.p variants={fade} className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground mb-12">
+              Made for
+            </motion.p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+              {[
+                { who: "Independent artists", use: "Preparing for fairs, open studios, and online sales without hiring a photographer." },
+                { who: "Gallery owners", use: "Creating compelling submission materials and exhibition proposals for new artists." },
+                { who: "Art consultants", use: "Pitching artwork to corporate clients with realistic office and lobby placement mockups." },
+                { who: "Online sellers", use: "Converting browsers into buyers by showing exactly how a piece looks on a real wall." },
+              ].map((item, i) => (
+                <motion.div key={i} variants={slideUp} custom={i}>
+                  <p className="font-display text-lg text-foreground mb-2">{item.who}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.use}</p>
                 </motion.div>
               ))}
             </div>
@@ -248,10 +360,12 @@ export default function Home() {
             <div className="border-t border-foreground pt-8">
               <div className="flex items-baseline gap-3">
                 <span className="font-display text-6xl md:text-7xl font-light text-foreground">$5</span>
-                <span className="text-sm text-muted-foreground">per session</span>
+                <span className="text-sm text-muted-foreground">per session · 10 visualizations</span>
               </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Comparable services charge $15–30 per image. A photography studio session runs $200+.
+              </p>
               <p className="mt-4 text-sm text-muted-foreground">
-                Ten high-resolution visualizations across eight curated environments.
                 No subscription. Full commercial rights included.
               </p>
 
@@ -264,13 +378,19 @@ export default function Home() {
                 ))}
               </ul>
 
-              <div className="mt-10">
+              <div className="mt-10 flex flex-col sm:flex-row items-start gap-5">
+                <Link
+                  href="/upload?trial=true"
+                  className="inline-flex items-center gap-3 text-[13px] uppercase tracking-[0.15em] font-medium text-foreground border-b-2 border-foreground pb-1 hover:text-primary hover:border-primary transition-colors duration-300"
+                >
+                  Try 3 Free First
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
                 <Link
                   href="/upload"
-                  className="inline-flex items-center gap-3 text-[13px] uppercase tracking-[0.15em] font-medium text-foreground border-b border-foreground pb-1 hover:text-primary hover:border-primary transition-colors duration-300"
+                  className="text-[13px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors duration-300 mt-1"
                 >
-                  Begin Now
-                  <ArrowRight className="w-4 h-4" />
+                  Get All 10 — $5
                 </Link>
               </div>
             </div>
@@ -307,8 +427,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Final CTA */}
+      {/* FAQ */}
       <section className="border-t border-border/40">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-24 md:py-32">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
+          >
+            <motion.p variants={fade} className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground mb-8">
+              Questions
+            </motion.p>
+            <motion.h2 variants={slideUp} className="font-display text-[clamp(1.5rem,3vw,3rem)] font-normal leading-[1.15] text-foreground mb-12 max-w-xl">
+              Everything you need to know.
+            </motion.h2>
+            <motion.div variants={fade} className="max-w-2xl">
+              <FAQ />
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="border-t border-border/40 bg-muted/20">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-24 md:py-36">
           <motion.div
             initial="hidden"
@@ -330,17 +472,17 @@ export default function Home() {
 
             <motion.div variants={fade} custom={2} className="mt-12 flex flex-col sm:flex-row items-start gap-6">
               <Link
-                href="/upload"
-                className="inline-flex items-center gap-3 text-[13px] uppercase tracking-[0.15em] font-medium text-foreground border-b border-foreground pb-1 hover:text-primary hover:border-primary transition-colors duration-300"
+                href="/upload?trial=true"
+                className="inline-flex items-center gap-3 text-[13px] uppercase tracking-[0.15em] font-medium text-foreground border-b-2 border-foreground pb-1 hover:text-primary hover:border-primary transition-colors duration-300"
               >
-                Upload Your Artwork
+                Try 3 Free Visualizations
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/upload?trial=true"
-                className="text-[13px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors duration-300"
+                href="/upload"
+                className="text-[13px] uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors duration-300 mt-1"
               >
-                Try 3 Free Visualizations
+                Get All 10 — $5
               </Link>
             </motion.div>
           </motion.div>
